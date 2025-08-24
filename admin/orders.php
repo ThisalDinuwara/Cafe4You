@@ -1,0 +1,227 @@
+<?php
+// admin/orders.php
+require_once '../config/database.php';
+require_once '../includes/auth.php';
+require_once '../includes/functions.php';
+
+requireAdmin();
+
+$database = new Database();
+$db = $database->getConnection();
+
+// Handle status updates
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
+    $order_id = (int)$_POST['order_id'];
+    $new_status = sanitize($_POST['status']);
+    
+    $update_query = "UPDATE orders SET status = ? WHERE id = ?";
+    $update_stmt = $db->prepare($update_query);
+    if ($update_stmt->execute([$new_status, $order_id])) {
+        showMessage('Order status updated successfully!');
+    } else {
+        showMessage('Failed to update order status', 'error');
+    }
+}
+
+// Get all orders
+$orders_query = "SELECT o.*, u.full_name, u.email, COUNT(oi.id) as item_count 
+                FROM orders o 
+                JOIN users u ON o.user_id = u.id 
+                LEFT JOIN order_items oi ON o.id = oi.order_id 
+                GROUP BY o.id 
+                ORDER BY o.created_at DESC";
+$orders_stmt = $db->prepare($orders_query);
+$orders_stmt->execute();
+$orders = $orders_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Get order details if requested
+$order_details = null;
+if (isset($_GET['view'])) {
+    $order_id = (int)$_GET['view'];
+    
+    $details_query = "SELECT o.*, u.full_name, u.email, u.phone as user_phone,
+                     oi.quantity, oi.price, mi.name as item_name 
+                     FROM orders o 
+                     JOIN users u ON o.user_id = u.id 
+                     JOIN order_items oi ON o.id = oi.order_id 
+                     JOIN menu_items mi ON oi.menu_item_id = mi.id 
+                     WHERE o.id = ?";
+    $details_stmt = $db->prepare($details_query);
+    $details_stmt->execute([$order_id]);
+    $order_details = $details_stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management - Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Admin Navigation -->
+    <nav class="bg-gray-800 text-white">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-orange-400">Admin Panel</h1>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <span>Welcome, <?= htmlspecialchars($_SESSION['full_name']) ?></span>
+                    <a href="../index.php" class="text-gray-300 hover:text-white transition">View Site</a>
+                    <a href="../logout.php" class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 transition">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-lg min-h-screen">
+            <nav class="mt-8">
+                <div class="px-4 space-y-2">
+                    <a href="dashboard.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">
+                        Dashboard
+                    </a>
+                    <a href="orders.php" class="block px-4 py-2 text-gray-700 bg-orange-50 border-r-4 border-orange-600 font-medium">
+                        Orders
+                    </a>
+                    <a href="menu.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">
+                        Menu Management
+                    </a>
+                    <a href="categories.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">
+                        Categories
+                    </a>
+                    <a href="reservations.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">
+                        Reservations
+                    </a>
+                    <a href="users.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">
+                        Users
+                    </a>
+                    <a href="messages.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">
+                        Contact Messages
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">Order Management</h1>
+                <p class="text-gray-600 mt-2">Manage and track customer orders</p>
+            </div>
+
+            <?php displayMessage(); ?>
+
+            <!-- Orders Table -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <?php foreach ($orders as $order): ?>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    #<?= $order['id'] ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900"><?= htmlspecialchars($order['full_name']) ?></div>
+                                    <div class="text-sm text-gray-500"><?= htmlspecialchars($order['email']) ?></div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <?= date('M j, Y g:i A', strtotime($order['created_at'])) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <?= $order['item_count'] ?> items
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    $<?= number_format($order['total_amount'], 2) ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <form method="POST" class="inline">
+                                        <input type="hidden" name="order_id" value="<?= $order['id'] ?>">
+                                        <select name="status" onchange="this.form.submit()" 
+                                                class="text-sm border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500">
+                                            <option value="pending" <?= $order['status'] === 'pending' ? 'selected' : '' ?>>Pending</option>
+                                            <option value="confirmed" <?= $order['status'] === 'confirmed' ? 'selected' : '' ?>>Confirmed</option>
+                                            <option value="preparing" <?= $order['status'] === 'preparing' ? 'selected' : '' ?>>Preparing</option>
+                                            <option value="ready" <?= $order['status'] === 'ready' ? 'selected' : '' ?>>Ready</option>
+                                            <option value="delivered" <?= $order['status'] === 'delivered' ? 'selected' : '' ?>>Delivered</option>
+                                            <option value="cancelled" <?= $order['status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+                                        </select>
+                                        <input type="hidden" name="update_status" value="1">
+                                    </form>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="orders.php?view=<?= $order['id'] ?>" class="text-orange-600 hover:text-orange-900">View Details</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Order Details Modal -->
+    <?php if ($order_details): ?>
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="order-modal">
+            <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+                <div class="mt-3">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-medium text-gray-900">Order Details #<?= $order_details[0]['id'] ?></h3>
+                        <a href="orders.php" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </a>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p><strong>Customer:</strong> <?= htmlspecialchars($order_details[0]['full_name']) ?></p>
+                        <p><strong>Email:</strong> <?= htmlspecialchars($order_details[0]['email']) ?></p>
+                        <p><strong>Phone:</strong> <?= htmlspecialchars($order_details[0]['phone']) ?></p>
+                        <p><strong>Date:</strong> <?= date('M j, Y g:i A', strtotime($order_details[0]['created_at'])) ?></p>
+                        <p><strong>Status:</strong> <?= ucfirst($order_details[0]['status']) ?></p>
+                        <p><strong>Delivery Address:</strong> <?= htmlspecialchars($order_details[0]['delivery_address']) ?></p>
+                        <?php if ($order_details[0]['special_instructions']): ?>
+                            <p><strong>Special Instructions:</strong> <?= htmlspecialchars($order_details[0]['special_instructions']) ?></p>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="border-t border-gray-200 pt-4">
+                        <h4 class="font-medium text-gray-900 mb-3">Order Items</h4>
+                        <div class="space-y-2">
+                            <?php foreach ($order_details as $item): ?>
+                                <div class="flex justify-between">
+                                    <span><?= htmlspecialchars($item['item_name']) ?> × <?= $item['quantity'] ?></span>
+                                    <span>$<?= number_format($item['price'] * $item['quantity'], 2) ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <div class="border-t border-gray-200 mt-3 pt-3">
+                            <div class="flex justify-between font-semibold">
+                                <span>Total</span>
+                                <span>$<?= number_format($order_details[0]['total_amount'], 2) ?></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+</body>
+</html>
