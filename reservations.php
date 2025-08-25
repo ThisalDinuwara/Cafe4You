@@ -65,199 +65,598 @@ if (isLoggedIn()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reservations - Delicious Restaurant</title>
+    <title>Reservations - Cafe For You</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-orange': '#FF6B35',
+                        'brand-cream': '#FFF8F0',
+                        'brand-brown': '#8B4513',
+                        'brand-gray': '#F5F5F5'
+                    },
+                    fontFamily: {
+                        'display': ['Georgia', 'serif'],
+                        'body': ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        .card-shadow {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-8px);
+        }
+        
+        .form-input {
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+            border-color: #FF6B35;
+            transform: translateY(-2px);
+        }
+        
+        .hero-pattern {
+            background-image: radial-gradient(circle at 1px 1px, rgba(255, 107, 53, 0.15) 1px, transparent 0);
+            background-size: 20px 20px;
+        }
+        
+        .floating-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-brand-cream font-body">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4">
+    <nav class="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-orange-100">
+        <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
-                    <h1 class="text-2xl font-bold text-orange-600">Delicious</h1>
+                    <div class="w-12 h-12 bg-gradient-to-br from-brand-orange to-red-500 rounded-xl flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">C</span>
+                    </div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-brand-orange to-red-500 bg-clip-text text-transparent">Cafe For You</h1>
                 </div>
                 
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.php" class="text-gray-700 hover:text-orange-600 transition">Home</a>
-                    <a href="menu.php" class="text-gray-700 hover:text-orange-600 transition">Menu</a>
-                    <a href="reservations.php" class="text-orange-600 font-semibold">Reservations</a>
-                    <a href="contact.php" class="text-gray-700 hover:text-orange-600 transition">Contact</a>
+                    <a href="index.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Home</a>
+                    <a href="menu.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Menu</a>
+                    <a href="reservations.php" class="text-brand-orange font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-brand-orange">Reservations</a>
+                    <a href="contact.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Contact</a>
                     
                     <?php if (isLoggedIn()): ?>
-                        <a href="cart.php" class="text-gray-700 hover:text-orange-600 transition">Cart</a>
-                        <a href="orders.php" class="text-gray-700 hover:text-orange-600 transition">Orders</a>
+                        <a href="cart.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Cart</a>
+                        <a href="orders.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Orders</a>
                         <?php if (isAdmin()): ?>
-                            <a href="admin/dashboard.php" class="text-gray-700 hover:text-orange-600 transition">Admin</a>
+                            <a href="admin/dashboard.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Admin</a>
                         <?php endif; ?>
-                        <a href="logout.php" class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 transition">Logout</a>
+                        <a href="logout.php" class="bg-gradient-to-r from-brand-orange to-red-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">Logout</a>
                     <?php else: ?>
-                        <a href="login.php" class="text-gray-700 hover:text-orange-600 transition">Login</a>
-                        <a href="register.php" class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 transition">Register</a>
+                        <a href="login.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Login</a>
+                        <a href="register.php" class="bg-gradient-to-r from-brand-orange to-red-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">Register</a>
                     <?php endif; ?>
                 </div>
+
+                <!-- Mobile menu button -->
+                <button class="md:hidden p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- Page Header -->
-    <section class="bg-gradient-to-r from-orange-500 to-red-600 text-white py-16">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <h1 class="text-4xl font-bold mb-4">Make a Reservation</h1>
-            <p class="text-xl">Reserve your table for an unforgettable dining experience</p>
+    <section class="relative bg-gradient-to-br from-brand-orange via-red-500 to-red-600 text-white py-20 overflow-hidden">
+        <div class="hero-pattern absolute inset-0 opacity-20"></div>
+        <div class="absolute top-10 left-10 w-6 h-6 bg-white/20 rounded-full animate-bounce"></div>
+        <div class="absolute top-32 right-20 w-4 h-4 bg-yellow-400/30 rounded-full"></div>
+        <div class="absolute bottom-20 left-1/4 w-3 h-3 bg-white/30 rounded-full"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <!-- Left Content -->
+                <div class="space-y-6">
+                    <div class="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-6 py-2 text-sm font-medium mb-4">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                        </svg>
+                        <span>Book Your Table</span>
+                    </div>
+                    <h1 class="text-5xl lg:text-6xl font-bold mb-4">Reserve Your <span class="text-yellow-300">Perfect</span> Table</h1>
+                    <p class="text-xl text-white/90 leading-relaxed">
+                        Secure your spot for an unforgettable dining experience. We'll make sure everything is perfect for your visit.
+                    </p>
+                    
+                    <!-- Features -->
+                    <div class="grid grid-cols-2 gap-4 pt-6">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <span class="text-sm">Instant Confirmation</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-sm">Flexible Timing</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-sm">Group Friendly</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                            </div>
+                            <span class="text-sm">Special Occasions</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Content - Restaurant Interior Image -->
+                <div class="relative">
+                    <div class="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+                        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=500&h=400&fit=crop&crop=center" 
+                             alt="Restaurant Interior" 
+                             class="w-full h-80 object-cover rounded-2xl">
+                    </div>
+                    
+                    <!-- Floating availability card -->
+                    <div class="absolute -bottom-6 -left-6 bg-white rounded-2xl p-4 shadow-xl">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="text-sm font-semibold text-gray-800">Available Today</div>
+                                <div class="text-xs text-gray-600">7:00 PM - 9:30 PM</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Table capacity indicator -->
+                    <div class="absolute -top-4 -right-4 bg-white rounded-2xl p-3 shadow-xl">
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-brand-orange">50+</div>
+                            <div class="text-xs text-gray-600">Tables</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
     <!-- Reservation Form -->
-    <section class="py-16">
-        <div class="max-w-4xl mx-auto px-4">
+    <section class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-6">
             <?php displayMessage(); ?>
             
-            <div class="grid lg:grid-cols-2 gap-12">
+            <div class="grid lg:grid-cols-3 gap-12">
                 <!-- Form -->
-                <div class="bg-white rounded-lg shadow-lg p-8">
-                    <h2 class="text-2xl font-bold text-gray-800 mb-6">Reservation Details</h2>
-                    
-                    <form method="POST" class="space-y-6">
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Name *</label>
-                                <input type="text" name="name" required 
-                                       value="<?= htmlspecialchars($_POST['name'] ?? $user['full_name'] ?? '') ?>"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-3xl card-shadow p-8 hover-lift">
+                        <div class="mb-8">
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Reservation Details</h2>
+                            <p class="text-gray-600">Fill out the form below and we'll confirm your reservation within 24 hours.</p>
+                        </div>
+                        
+                        <form method="POST" class="space-y-6">
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">Full Name *</label>
+                                    <input type="text" name="name" required 
+                                           value="<?= htmlspecialchars($_POST['name'] ?? $user['full_name'] ?? '') ?>"
+                                           class="form-input w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none bg-gray-50">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">Email Address *</label>
+                                    <input type="email" name="email" required 
+                                           value="<?= htmlspecialchars($_POST['email'] ?? $user['email'] ?? '') ?>"
+                                           class="form-input w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none bg-gray-50">
+                                </div>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">Phone Number *</label>
+                                    <input type="tel" name="phone" required 
+                                           value="<?= htmlspecialchars($_POST['phone'] ?? $user['phone'] ?? '') ?>"
+                                           class="form-input w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none bg-gray-50">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">Number of Guests *</label>
+                                    <select name="guests" required 
+                                            class="form-input w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none bg-gray-50">
+                                        <?php for ($i = 1; $i <= 20; $i++): ?>
+                                            <option value="<?= $i ?>" <?= (isset($_POST['guests']) && $_POST['guests'] == $i) ? 'selected' : '' ?>>
+                                                <?= $i ?> <?= $i == 1 ? 'Guest' : 'Guests' ?>
+                                            </option>
+                                        <?php endfor; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">Preferred Date *</label>
+                                    <input type="date" name="date" required 
+                                           value="<?= htmlspecialchars($_POST['date'] ?? '') ?>"
+                                           min="<?= date('Y-m-d') ?>"
+                                           class="form-input w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none bg-gray-50">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">Preferred Time *</label>
+                                    <select name="time" required 
+                                            class="form-input w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none bg-gray-50">
+                                        <option value="">Select Time</option>
+                                        <?php
+                                        $times = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'];
+                                        foreach ($times as $time):
+                                        ?>
+                                            <option value="<?= $time ?>" <?= (isset($_POST['time']) && $_POST['time'] == $time) ? 'selected' : '' ?>>
+                                                <?= date('g:i A', strtotime($time)) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                                <input type="email" name="email" required 
-                                       value="<?= htmlspecialchars($_POST['email'] ?? $user['email'] ?? '') ?>"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500">
-                            </div>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone *</label>
-                                <input type="tel" name="phone" required 
-                                       value="<?= htmlspecialchars($_POST['phone'] ?? $user['phone'] ?? '') ?>"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500">
+                                <label class="block text-sm font-semibold text-gray-700 mb-3">Special Requests</label>
+                                <textarea name="message" rows="4" 
+                                          class="form-input w-full px-4 py-3 border border-gray-200 rounded-2xl focus:outline-none bg-gray-50"
+                                          placeholder="Any special requests, dietary requirements, or celebrations we should know about..."><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
                             </div>
                             
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Guests *</label>
-                                <select name="guests" required 
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500">
-                                    <?php for ($i = 1; $i <= 20; $i++): ?>
-                                        <option value="<?= $i ?>" <?= (isset($_POST['guests']) && $_POST['guests'] == $i) ? 'selected' : '' ?>>
-                                            <?= $i ?> <?= $i == 1 ? 'Guest' : 'Guests' ?>
-                                        </option>
-                                    <?php endfor; ?>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div class="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Date *</label>
-                                <input type="date" name="date" required 
-                                       value="<?= htmlspecialchars($_POST['date'] ?? '') ?>"
-                                       min="<?= date('Y-m-d') ?>"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500">
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Preferred Time *</label>
-                                <select name="time" required 
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500">
-                                    <option value="">Select Time</option>
-                                    <?php
-                                    $times = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'];
-                                    foreach ($times as $time):
-                                    ?>
-                                        <option value="<?= $time ?>" <?= (isset($_POST['time']) && $_POST['time'] == $time) ? 'selected' : '' ?>>
-                                            <?= date('g:i A', strtotime($time)) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Special Requests</label>
-                            <textarea name="message" rows="4" 
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
-                                      placeholder="Any special requests or dietary requirements..."><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
-                        </div>
-                        
-                        <button type="submit" class="w-full bg-orange-600 text-white py-3 px-6 rounded-md font-semibold hover:bg-orange-700 transition">
-                            Submit Reservation
-                        </button>
-                    </form>
+                            <button type="submit" class="w-full bg-gradient-to-r from-brand-orange to-red-500 text-white py-4 px-8 rounded-2xl font-semibold hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 text-lg">
+                                <span class="flex items-center justify-center space-x-2">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                                    </svg>
+                                    <span>Reserve Your Table</span>
+                                </span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 
                 <!-- Restaurant Info -->
-                <div class="space-y-8">
-                    <div class="bg-white rounded-lg shadow-lg p-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">Restaurant Hours</h3>
-                        <div class="space-y-2 text-gray-600">
-                            <div class="flex justify-between">
-                                <span>Monday - Thursday:</span>
-                                <span>11:00 AM - 10:00 PM</span>
+                <div class="space-y-6">
+                    <!-- Opening Hours -->
+                    <div class="bg-white rounded-3xl card-shadow p-6 hover-lift">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-brand-orange/10 rounded-2xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
                             </div>
-                            <div class="flex justify-between">
-                                <span>Friday - Saturday:</span>
-                                <span>11:00 AM - 11:00 PM</span>
+                            <h3 class="text-xl font-bold text-gray-800">Opening Hours</h3>
+                        </div>
+                        <div class="space-y-3 text-gray-600">
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <span class="font-medium">Monday - Thursday:</span>
+                                <span class="text-brand-orange font-semibold">11:00 AM - 10:00 PM</span>
                             </div>
-                            <div class="flex justify-between">
-                                <span>Sunday:</span>
-                                <span>12:00 PM - 9:00 PM</span>
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <span class="font-medium">Friday - Saturday:</span>
+                                <span class="text-brand-orange font-semibold">11:00 AM - 11:00 PM</span>
+                            </div>
+                            <div class="flex justify-between items-center py-2">
+                                <span class="font-medium">Sunday:</span>
+                                <span class="text-brand-orange font-semibold">12:00 PM - 9:00 PM</span>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="bg-white rounded-lg shadow-lg p-8">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">Contact Information</h3>
-                        <div class="space-y-3 text-gray-600">
-                            <div class="flex items-center space-x-3">
-                                <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
+                    <!-- Contact Information -->
+                    <div class="bg-white rounded-3xl card-shadow p-6 hover-lift">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-brand-orange/10 rounded-2xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                                 </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Contact Info</h3>
+                        </div>
+                        <div class="space-y-4 text-gray-600">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 bg-brand-orange/10 rounded-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                                    </svg>
+                                </div>
                                 <span>(555) 123-4567</span>
                             </div>
-                            <div class="flex items-center space-x-3">
-                                <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-                                </svg>
-                                <span>reservations@delicious.com</span>
-                            </div>
-                            <div class="flex items-center space-x-3">
-                                <svg class="w-5 h-5 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                                </svg>
-                                <span>123 Restaurant Street<br>City, State 12345</span>
+                            <div class="flex items-start space-x-3">
+                                <div class="w-8 h-8 bg-brand-orange/10 rounded-full flex items-center justify-center mt-1">
+                                    <svg class="w-4 h-4 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div>123 Restaurant Street</div>
+                                    <div>City, State 12345</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="bg-orange-50 rounded-lg p-6">
-                        <h4 class="font-semibold text-orange-800 mb-2">Reservation Policy</h4>
-                        <ul class="text-sm text-orange-700 space-y-1">
-                            <li>• Reservations are confirmed within 24 hours</li>
-                            <li>• Please arrive within 15 minutes of your reservation time</li>
-                            <li>• Cancellations must be made 2 hours in advance</li>
-                            <li>• Large parties (8+) may require a deposit</li>
+                    <!-- Reservation Policy -->
+                    <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-3xl p-6 border border-orange-100">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-brand-orange/20 rounded-2xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h4 class="font-bold text-gray-800">Reservation Policy</h4>
+                        </div>
+                        <ul class="text-sm text-gray-700 space-y-3">
+                            <li class="flex items-start space-x-3">
+                                <div class="w-1.5 h-1.5 bg-brand-orange rounded-full mt-2"></div>
+                                <span>Reservations are confirmed within 24 hours via email or phone</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <div class="w-1.5 h-1.5 bg-brand-orange rounded-full mt-2"></div>
+                                <span>Please arrive within 15 minutes of your reservation time</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <div class="w-1.5 h-1.5 bg-brand-orange rounded-full mt-2"></div>
+                                <span>Cancellations must be made at least 2 hours in advance</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <div class="w-1.5 h-1.5 bg-brand-orange rounded-full mt-2"></div>
+                                <span>Large parties (8+ guests) may require a deposit</span>
+                            </li>
                         </ul>
                     </div>
+
+                    <!-- Special Features -->
+                    <div class="bg-white rounded-3xl card-shadow p-6 hover-lift">
+                        <div class="flex items-center space-x-3 mb-4">
+                            <div class="w-10 h-10 bg-brand-orange/10 rounded-2xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800">Special Services</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                                <span class="text-2xl">🎂</span>
+                                <div>
+                                    <div class="font-medium text-gray-800">Birthday Celebrations</div>
+                                    <div class="text-sm text-gray-600">Complimentary dessert & decoration</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                                <span class="text-2xl">💍</span>
+                                <div>
+                                    <div class="font-medium text-gray-800">Romantic Dining</div>
+                                    <div class="text-sm text-gray-600">Private seating & candlelit ambiance</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+                                <span class="text-2xl">🏢</span>
+                                <div>
+                                    <div class="font-medium text-gray-800">Business Meetings</div>
+                                    <div class="text-sm text-gray-600">Quiet areas & WiFi available</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-20 bg-brand-cream">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <div class="space-y-8">
+                <h2 class="text-4xl font-bold text-gray-800">Need Help with Your <span class="text-brand-orange">Reservation?</span></h2>
+                <p class="text-xl text-gray-600">
+                    Our friendly staff is here to help you plan the perfect dining experience. Call us directly for immediate assistance.
+                </p>
+                
+                <div class="flex flex-wrap justify-center gap-6">
+                    <a href="tel:+15551234567" class="bg-gradient-to-r from-brand-orange to-red-500 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                        </svg>
+                        <span>Call Now</span>
+                    </a>
+                    <a href="mailto:reservations@cafeforyou.com" class="border-2 border-brand-orange text-brand-orange px-8 py-4 rounded-full font-semibold hover:bg-brand-orange hover:text-white transition-all duration-300 flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>Send Email</span>
+                    </a>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-12">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p>&copy; 2025 Delicious Restaurant. All rights reserved.</p>
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-gradient-to-br from-brand-orange to-red-500 rounded-xl flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">C</span>
+                        </div>
+                        <h3 class="text-2xl font-bold">Cafe For You</h3>
+                    </div>
+                    <p class="text-gray-400 leading-relaxed">Experience fine dining at its best with our exquisite menu and exceptional service crafted with passion.</p>
+                </div>
+                
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="menu.php" class="hover:text-white transition-colors duration-300 hover:text-brand-orange">Menu</a></li>
+                        <li><a href="reservations.php" class="hover:text-white transition-colors duration-300 hover:text-brand-orange">Reservations</a></li>
+                        <li><a href="contact.php" class="hover:text-white transition-colors duration-300 hover:text-brand-orange">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold">Contact Info</h4>
+                    <ul class="space-y-3 text-gray-400">
+                        <li class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span>123 Restaurant Street</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="ml-8">City, State 12345</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            </svg>
+                            <span>(555) 123-4567</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>info@cafeforyou.com</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="space-y-4">
+                    <h4 class="text-lg font-semibold">Hours</h4>
+                    <ul class="space-y-2 text-gray-400 text-sm">
+                        <li class="flex justify-between">
+                            <span>Monday - Thursday:</span>
+                            <span class="text-white">11am - 10pm</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Friday - Saturday:</span>
+                            <span class="text-white">11am - 11pm</span>
+                        </li>
+                        <li class="flex justify-between">
+                            <span>Sunday:</span>
+                            <span class="text-white">12pm - 9pm</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8">
+                <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                    <div class="text-gray-400 text-center md:text-left">
+                        <p>&copy; 2025 Cafe For You. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
+
+    <script>
+        // Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add scroll effect for navbar
+        window.addEventListener('scroll', function() {
+            const nav = document.querySelector('nav');
+            if (window.scrollY > 100) {
+                nav.classList.add('bg-white/95');
+            } else {
+                nav.classList.remove('bg-white/95');
+            }
+        });
+
+        // Intersection Observer for animations
+        document.addEventListener('DOMContentLoaded', function() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe elements for animation
+            document.querySelectorAll('.hover-lift').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+        });
+
+        // Form validation and enhancement
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('input, select, textarea');
+            
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
+            });
+        });
+    </script>
 </body>
 </html>
