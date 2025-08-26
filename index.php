@@ -120,8 +120,21 @@ $featured_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
             66% { transform: translateY(10px) rotate(-5deg); }
         }
 
-        /* ⛔ Removed the global ::before/::after overrides that caused artifacts */
-        /* (No .slide-image::before/::after suppressors either) */
+        /* Slideshow specific styles for better image display */
+        .slideshow-container {
+            position: relative;
+        }
+        
+        .slide-image {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .slide-image:first-child {
+            position: relative !important;
+            z-index: 10 !important;
+        }
     </style>
 </head>
 <body class="bg-brand-cream font-body">
@@ -232,73 +245,79 @@ $featured_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
 
-                <!-- Right Content - Slideshow with Utensils -->
+                <!-- Right Content - Large Circle Slideshow -->
                 <div class="relative" id="hero-slideshow">
                     <!-- Main slideshow container -->
                     <div class="relative">
-                        <!-- Slideshow images -->
-                        <div class="slideshow-container relative w-96 h-96 mx-auto">
+                        <!-- Large Slideshow images - Made bigger (w-[28rem] h-[28rem] = 448px) -->
+                        <div class="slideshow-container relative w-[28rem] h-[28rem] mx-auto">
                             <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=500&fit=crop&crop=center" 
                                  alt="Delicious Pizza" 
-                                 class="slide-image w-96 h-96 object-cover rounded-full transition-opacity duration-500 opacity-100">
+                                 class="slide-image w-[28rem] h-[28rem] object-cover rounded-full transition-opacity duration-500 opacity-100 shadow-2xl">
                             <img src="https://images.unsplash.com/photo-1551782450-17144efb9c50?w=500&h=500&fit=crop&crop=center" 
                                  alt="Gourmet Pasta" 
-                                 class="slide-image w-96 h-96 object-cover rounded-full transition-opacity duration-500 opacity-0 absolute inset-0">
+                                 class="slide-image w-[28rem] h-[28rem] object-cover rounded-full transition-opacity duration-500 opacity-0 absolute inset-0 shadow-2xl">
                             <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&h=500&fit=crop&crop=center" 
                                  alt="Fresh Seafood" 
-                                 class="slide-image w-96 h-96 object-cover rounded-full transition-opacity duration-500 opacity-0 absolute inset-0">
+                                 class="slide-image w-[28rem] h-[28rem] object-cover rounded-full transition-opacity duration-500 opacity-0 absolute inset-0 shadow-2xl">
                             <img src="https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&h=500&fit=crop&crop=center" 
                                  alt="Garden Salad" 
-                                 class="slide-image w-96 h-96 object-cover rounded-full transition-opacity duration-500 opacity-0 absolute inset-0">
+                                 class="slide-image w-[28rem] h-[28rem] object-cover rounded-full transition-opacity duration-500 opacity-0 absolute inset-0 shadow-2xl">
                         </div>
                         
-                        <!-- Utensils -->
-                        <div class="absolute -left-16 top-1/2 transform -translate-y-1/2 -rotate-45">
-                            <div class="w-1 h-32 bg-gray-700 rounded-full"></div>
+                        <!-- Utensils - Adjusted for larger circle -->
+                        <div class="absolute -left-20 top-1/2 transform -translate-y-1/2 -rotate-45">
+                            <div class="w-1.5 h-40 bg-gray-700 rounded-full shadow-md"></div>
                         </div>
-                        <div class="absolute -right-16 top-1/2 transform -translate-y-1/2 rotate-45">
-                            <div class="w-1 h-32 bg-gray-700 rounded-full relative">
-                                <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-4 h-6 border-2 border-gray-700 rounded-t-lg"></div>
-                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-4 border-l-2 border-gray-700"></div>
-                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 translate-x-1 w-2 h-4 border-l-2 border-gray-700"></div>
-                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 -translate-x-1 w-2 h-4 border-l-2 border-gray-700"></div>
+                        <div class="absolute -right-20 top-1/2 transform -translate-y-1/2 rotate-45">
+                            <div class="w-1.5 h-40 bg-gray-700 rounded-full relative shadow-md">
+                                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 w-5 h-8 border-2 border-gray-700 rounded-t-lg"></div>
+                                <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 w-2 h-5 border-l-2 border-gray-700"></div>
+                                <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 translate-x-1 w-2 h-5 border-l-2 border-gray-700"></div>
+                                <div class="absolute -top-2 left-1/2 transform -translate-x-1/2 -translate-x-1 w-2 h-5 border-l-2 border-gray-700"></div>
                             </div>
                         </div>
                         
-                        <!-- Floating elements -->
-                        <div class="absolute -top-8 -right-8 w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
-                            <span class="text-2xl">🍅</span>
+                        <!-- Floating elements - Scaled and repositioned for large circle -->
+                        <div class="absolute -top-10 -right-12 w-20 h-20 bg-white rounded-full shadow-xl flex items-center justify-center animate-bounce" style="animation-duration: 3s;">
+                            <span class="text-3xl">🍅</span>
                         </div>
-                        <div class="absolute -bottom-4 -left-8 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center">
-                            <span class="text-xl">🥗</span>
+                        <div class="absolute -bottom-6 -left-12 w-16 h-16 bg-white rounded-full shadow-xl flex items-center justify-center" style="animation: float 5s ease-in-out infinite;">
+                            <span class="text-2xl">🥗</span>
                         </div>
-                        <div class="absolute top-8 -left-12 w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center">
-                            <span class="text-xl">🧄</span>
+                        <div class="absolute top-10 -left-16 w-18 h-18 bg-white rounded-full shadow-xl flex items-center justify-center" style="animation: float 6s ease-in-out infinite; animation-delay: 1.5s;">
+                            <span class="text-2xl">🧄</span>
+                        </div>
+                        <div class="absolute top-20 right-8 w-14 h-14 bg-white rounded-full shadow-xl flex items-center justify-center" style="animation: float 4s ease-in-out infinite; animation-delay: 3s;">
+                            <span class="text-xl">🌶️</span>
+                        </div>
+                        <div class="absolute bottom-16 right-16 w-12 h-12 bg-white rounded-full shadow-xl flex items-center justify-center" style="animation: float 4.5s ease-in-out infinite; animation-delay: 2s;">
+                            <span class="text-lg">🥑</span>
                         </div>
                     </div>
                     
                     <!-- Slide indicators -->
-                    <div class="flex justify-center space-x-2 mt-6" id="slide-indicators">
-                        <button class="slide-indicator w-6 h-2 rounded-full bg-brand-orange transition-all duration-300" data-slide="0"></button>
-                        <button class="slide-indicator w-2 h-2 rounded-full bg-gray-300 transition-all duration-300" data-slide="1"></button>
-                        <button class="slide-indicator w-2 h-2 rounded-full bg-gray-300 transition-all duration-300" data-slide="2"></button>
-                        <button class="slide-indicator w-2 h-2 rounded-full bg-gray-300 transition-all duration-300" data-slide="3"></button>
+                    <div class="flex justify-center space-x-3 mt-8" id="slide-indicators">
+                        <button class="slide-indicator w-8 h-3 rounded-full bg-brand-orange transition-all duration-300 shadow-md" data-slide="0"></button>
+                        <button class="slide-indicator w-3 h-3 rounded-full bg-gray-300 transition-all duration-300 shadow-md hover:bg-gray-400" data-slide="1"></button>
+                        <button class="slide-indicator w-3 h-3 rounded-full bg-gray-300 transition-all duration-300 shadow-md hover:bg-gray-400" data-slide="2"></button>
+                        <button class="slide-indicator w-3 h-3 rounded-full bg-gray-300 transition-all duration-300 shadow-md hover:bg-gray-400" data-slide="3"></button>
                     </div>
                     
-                    <!-- Rating Card -->
-                    <div class="absolute -bottom-8 -right-4 bg-white rounded-2xl p-4 shadow-xl">
-                        <div class="flex items-center space-x-3">
-                            <img id="rating-card-image" src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=60&h=60&fit=crop&crop=center" alt="Current Dish" class="w-12 h-12 object-cover rounded-xl">
+                    <!-- Rating Card - Repositioned for large circle -->
+                    <div class="absolute -bottom-12 -right-8 bg-white rounded-3xl p-5 shadow-2xl border border-gray-100">
+                        <div class="flex items-center space-x-4">
+                            <img id="rating-card-image" src="https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=80&h=80&fit=crop&crop=center" alt="Current Dish" class="w-16 h-16 object-cover rounded-2xl">
                             <div>
-                                <h4 class="font-semibold text-sm text-gray-800">Culinary Excellence</h4>
-                                <p class="text-xs text-gray-600">and Gourmet</p>
-                                <div class="flex items-center mt-1">
-                                    <div class="flex text-yellow-400 text-xs">
-                                        ⭐⭐⭐⭐⭐
+                                <h4 class="font-semibold text-base text-gray-800">Culinary Excellence</h4>
+                                <p class="text-sm text-gray-600">and Gourmet</p>
+                                <div class="flex items-center mt-2">
+                                    <div class="flex text-yellow-400 text-sm">
+                                        ★★★★★
                                     </div>
-                                    <span class="text-xs text-gray-600 ml-1">5.0</span>
-                                    <span class="w-6 h-6 bg-brand-orange rounded-full flex items-center justify-center ml-2">
-                                        <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <span class="text-sm text-gray-600 ml-2 font-medium">5.0</span>
+                                    <span class="w-8 h-8 bg-brand-orange rounded-full flex items-center justify-center ml-3">
+                                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                                         </svg>
                                     </span>
@@ -529,7 +548,7 @@ $featured_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </li>
                         <li class="flex items-center space-x-3">
                             <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
                             <span>info@cafeforyou.com</span>
                         </li>
@@ -566,17 +585,17 @@ $featured_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </footer>
 
     <script>
-        // Slideshow functionality – fixed time delay & removed global pseudo-element override
+        // Enhanced slideshow functionality with large circle and fast response
         document.addEventListener('DOMContentLoaded', function() {
-            const SLIDE_DELAY = 3500;      // time between slides (ms)  ← adjust if you want
-            const INITIAL_DELAY = 1200;    // first wait before auto-advance (ms)
+            const SLIDE_DELAY = 2000;      // Fast auto-advance (2 seconds)
+            const INITIAL_DELAY = 100;     // Very quick start (100ms for first image)
 
             let currentSlide = 0;
             const slides = document.querySelectorAll('.slide-image');
             const indicators = document.querySelectorAll('.slide-indicator');
             const ratingCardImage = document.getElementById('rating-card-image');
             const slideImages = [
-                'https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?w=500&h=500&fit=crop&crop=center',
+                'https://i.pinimg.com/736x/ab/e6/57/abe65721a6d06545c99230151aab0177.jpg',
                 'https://images.unsplash.com/photo-1551782450-17144efb9c50?w=500&h=500&fit=crop&crop=center',
                 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=500&h=500&fit=crop&crop=center',
                 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&h=500&fit=crop&crop=center'
@@ -586,7 +605,8 @@ $featured_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 slides.forEach((slide, i) => {
                     if (i === index) {
                         slide.style.opacity = '1';
-                        slide.style.zIndex = '10';
+                        slide.style.zIndex = '20';
+                        slide.style.display = 'block';
                     } else {
                         slide.style.opacity = '0';
                         slide.style.zIndex = '1';
@@ -595,11 +615,11 @@ $featured_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 
                 indicators.forEach((indicator, i) => {
                     if (i === index) {
-                        indicator.classList.remove('w-2', 'bg-gray-300');
-                        indicator.classList.add('w-6', 'bg-brand-orange');
+                        indicator.classList.remove('w-3', 'bg-gray-300');
+                        indicator.classList.add('w-8', 'bg-brand-orange');
                     } else {
-                        indicator.classList.remove('w-6', 'bg-brand-orange');
-                        indicator.classList.add('w-2', 'bg-gray-300');
+                        indicator.classList.remove('w-8', 'bg-brand-orange');
+                        indicator.classList.add('w-3', 'bg-gray-300');
                     }
                 });
                 
@@ -615,17 +635,30 @@ $featured_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 showSlide(nextIndex);
             }
 
+            // Ensure slides exist and initialize immediately
             if (slides.length > 0) {
+                // Force first image to be visible immediately
+                slides[0].style.opacity = '1';
+                slides[0].style.zIndex = '20';
+                slides[0].style.display = 'block';
+                
+                // Initialize slideshow
                 showSlide(0);
 
-                // Click handlers
+                // Set up click handlers for immediate response
                 indicators.forEach((indicator, index) => {
-                    indicator.addEventListener('click', () => showSlide(index));
+                    indicator.addEventListener('click', () => {
+                        showSlide(index);
+                        // Reset timer on manual interaction
+                        clearInterval(autoAdvanceTimer);
+                        autoAdvanceTimer = setInterval(nextSlide, SLIDE_DELAY);
+                    });
                 });
 
-                // Start after initial delay, then repeat with SLIDE_DELAY
+                // Start auto-advance quickly
+                let autoAdvanceTimer;
                 setTimeout(() => {
-                    setInterval(nextSlide, SLIDE_DELAY);
+                    autoAdvanceTimer = setInterval(nextSlide, SLIDE_DELAY);
                 }, INITIAL_DELAY);
             }
         });
