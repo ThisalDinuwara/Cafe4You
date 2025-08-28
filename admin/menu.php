@@ -385,7 +385,7 @@ if (isset($_GET['edit'])) {
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-3">Price *</label>
                             <div class="relative">
-                                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold text-lg">$</span>
+                                <span class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 font-bold text-lg">R</span>
                                 <input type="number" name="price" step="0.01" min="0" required 
                                        value="<?= $edit_item['price'] ?? '' ?>"
                                        class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent transition-all duration-300">

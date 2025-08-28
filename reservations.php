@@ -120,6 +120,19 @@ if (isLoggedIn()) {
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+
+        .hero-bg {
+            background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=800&fit=crop&crop=center');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-bg {
+                background-attachment: scroll;
+            }
+        }
     </style>
 </head>
 <body class="bg-brand-cream font-body">
@@ -164,7 +177,7 @@ if (isLoggedIn()) {
     </nav>
 
     <!-- Page Header -->
-    <section class="relative bg-gradient-to-br from-brand-orange via-red-500 to-red-600 text-white py-20 overflow-hidden">
+    <section class="relative hero-bg text-white py-20 overflow-hidden">
         <div class="hero-pattern absolute inset-0 opacity-20"></div>
         <div class="absolute top-10 left-10 w-6 h-6 bg-white/20 rounded-full animate-bounce"></div>
         <div class="absolute top-32 right-20 w-4 h-4 bg-yellow-400/30 rounded-full"></div>
@@ -395,14 +408,6 @@ if (isLoggedIn()) {
                         <div class="space-y-4 text-gray-600">
                             <div class="flex items-center space-x-3">
                                 <div class="w-8 h-8 bg-brand-orange/10 rounded-full flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                    </svg>
-                                </div>
-                                <span>(555) 123-4567</span>
-                            </div>
-                            <div class="flex items-start space-x-3">
-                                <div class="w-8 h-8 bg-brand-orange/10 rounded-full flex items-center justify-center mt-1">
                                     <svg class="w-4 h-4 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>

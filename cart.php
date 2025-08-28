@@ -229,7 +229,7 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                                         <!-- Item Details -->
                                         <div class="flex-1 min-w-0">
                                             <h3 class="text-xl font-bold text-gray-800 mb-1"><?= htmlspecialchars($item['name']) ?></h3>
-                                            <p class="text-brand-orange font-semibold text-lg">$<?= number_format($item['price'], 2) ?> each</p>
+                                            <p class="text-brand-orange font-semibold text-lg">Rs. <?= number_format($item['price'], 2) ?> each</p>
                                             
                                             <!-- Quantity Controls -->
                                             <div class="flex items-center space-x-4 mt-4">
@@ -266,8 +266,8 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                                         
                                         <!-- Item Total -->
                                         <div class="text-right">
-                                            <div class="text-2xl font-bold text-gray-800">$<?= number_format($item['subtotal'], 2) ?></div>
-                                            <div class="text-sm text-gray-500"><?= $item['quantity'] ?> × $<?= number_format($item['price'], 2) ?></div>
+                                            <div class="text-2xl font-bold text-gray-800">Rs. <?= number_format($item['subtotal'], 2) ?></div>
+                                            <div class="text-sm text-gray-500"><?= $item['quantity'] ?> × Rs. <?= number_format($item['price'], 2) ?></div>
                                         </div>
                                     </div>
                                 </div>
@@ -292,16 +292,16 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                                 <div class="space-y-4 mb-6">
                                     <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
                                         <span class="text-gray-700 font-medium">Subtotal</span>
-                                        <span class="text-gray-800 font-semibold text-lg">$<?= number_format($total, 2) ?></span>
+                                        <span class="text-gray-800 font-semibold text-lg">Rs. <?= number_format($total, 2) ?></span>
                                     </div>
                                     <div class="flex justify-between items-center p-4 bg-gray-50 rounded-xl">
                                         <span class="text-gray-700 font-medium">Tax (8%)</span>
-                                        <span class="text-gray-800 font-semibold text-lg">$<?= number_format($total * 0.08, 2) ?></span>
+                                        <span class="text-gray-800 font-semibold text-lg">Rs. <?= number_format($total * 0.08, 2) ?></span>
                                     </div>
                                     <div class="border-t-2 border-gray-200 pt-4">
                                         <div class="flex justify-between items-center p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border-2 border-brand-orange/20">
                                             <span class="text-gray-800 font-bold text-xl">Total</span>
-                                            <span class="text-brand-orange font-bold text-2xl">$<?= number_format($total * 1.08, 2) ?></span>
+                                            <span class="text-brand-orange font-bold text-2xl">Rs. <?= number_format($total * 1.08, 2) ?></span>
                                         </div>
                                     </div>
                                 </div>
@@ -336,7 +336,7 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                                 <div class="space-y-3">
                                     <div class="flex items-center space-x-2 text-sm text-gray-700">
                                         <span class="w-2 h-2 bg-brand-orange rounded-full"></span>
-                                        <span>Free delivery over $50</span>
+                                        <span>Free delivery over Rs. 5,000</span>
                                     </div>
                                     <div class="flex items-center space-x-2 text-sm text-gray-700">
                                         <span class="w-2 h-2 bg-brand-orange rounded-full"></span>

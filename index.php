@@ -446,7 +446,7 @@ $featured_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <h3 class="text-xl font-semibold text-gray-800 mb-2"><?= htmlspecialchars($item['name']) ?></h3>
                         <p class="text-gray-600 mb-4 text-sm leading-relaxed"><?= htmlspecialchars($item['description']) ?></p>
                         <div class="flex justify-between items-center">
-                            <div class="text-2xl font-bold text-brand-orange">$<?= number_format($item['price'], 2) ?></div>
+                            <div class="text-2xl font-bold text-brand-orange">Rs.<?= number_format($item['price'], 2) ?></div>
                             <?php if (isLoggedIn()): ?>
                                 <form method="POST" action="add_to_cart.php" class="inline">
                                     <input type="hidden" name="menu_item_id" value="<?= $item['id'] ?>">

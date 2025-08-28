@@ -203,7 +203,7 @@ $menu_items = $menu_stmt->fetchAll(PDO::FETCH_ASSOC);
                                  class="w-20 h-16 object-cover rounded-xl">
                             <div class="mt-2">
                                 <div class="text-xs font-semibold text-gray-800">Pasta Special</div>
-                                <div class="text-xs text-brand-orange font-bold">$24</div>
+                                <div class="text-xs text-brand-orange font-bold">Rs.24</div>
                             </div>
                         </div>
 
@@ -213,7 +213,7 @@ $menu_items = $menu_stmt->fetchAll(PDO::FETCH_ASSOC);
                                  class="w-20 h-16 object-cover rounded-xl">
                             <div class="mt-2">
                                 <div class="text-xs font-semibold text-gray-800">Seafood Delight</div>
-                                <div class="text-xs text-brand-orange font-bold">$32</div>
+                                <div class="text-xs text-brand-orange font-bold">Rs.32</div>
                             </div>
                         </div>
 
