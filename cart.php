@@ -59,7 +59,8 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
             theme: {
                 extend: {
                     colors: {
-                        'brand-orange': '#FF6B35',
+                        'brand-yellow': '#FCD34D',
+                        'brand-amber': '#F59E0B',
                         'brand-cream': '#FFF8F0',
                         'brand-brown': '#8B4513',
                         'brand-gray': '#F5F5F5'
@@ -88,7 +89,7 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
         }
         
         .hero-pattern {
-            background-image: radial-gradient(circle at 1px 1px, rgba(255, 107, 53, 0.15) 1px, transparent 0);
+            background-image: radial-gradient(circle at 1px 1px, rgba(252, 211, 77, 0.15) 1px, transparent 0);
             background-size: 20px 20px;
         }
         
@@ -109,34 +110,38 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
         }
         
         .quantity-input:focus {
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(252, 211, 77, 0.2);
+            border-color: #FCD34D;
+        }
+        
+        .contact-icon {
+            background: linear-gradient(135deg, #FCD34D, #F59E0B);
         }
     </style>
 </head>
 <body class="bg-brand-cream font-body">
     <!-- Navigation -->
-    <nav class="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-orange-100">
+    <nav class="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-yellow-100">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-brand-orange to-red-500 rounded-xl flex items-center justify-center">
+                    <div class="w-12 h-12 bg-gradient-to-br from-brand-yellow to-brand-amber rounded-xl flex items-center justify-center">
                         <span class="text-white font-bold text-xl">C</span>
                     </div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-brand-orange to-red-500 bg-clip-text text-transparent">Cafe For You</h1>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-brand-yellow to-brand-amber bg-clip-text text-transparent">Cafe For You</h1>
                 </div>
                 
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Home</a>
-                    <a href="menu.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Menu</a>
-                    <a href="reservations.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Reservations</a>
-                    <a href="contact.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Contact</a>
-                    <a href="cart.php" class="text-brand-orange font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-brand-orange">Cart</a>
-                    <a href="orders.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Orders</a>
+                    <a href="index.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Home</a>
+                    <a href="menu.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Menu</a>
+                    <a href="reservations.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Reservations</a>
+                    <a href="contact.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Contact</a>
+                    <a href="cart.php" class="text-brand-yellow font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-brand-yellow">Cart</a>
+                    <a href="orders.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Orders</a>
                     <?php if (isAdmin()): ?>
-                        <a href="admin/dashboard.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Admin</a>
+                        <a href="admin/dashboard.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Admin</a>
                     <?php endif; ?>
-                    <a href="logout.php" class="bg-gradient-to-r from-brand-orange to-red-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">Logout</a>
+                    <a href="logout.php" class="bg-gradient-to-r from-brand-yellow to-brand-amber text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">Logout</a>
                 </div>
 
                 <!-- Mobile menu button -->
@@ -150,10 +155,10 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
     </nav>
 
     <!-- Page Header -->
-    <section class="relative bg-gradient-to-br from-brand-orange via-red-500 to-red-600 text-white py-16 overflow-hidden">
+    <section class="relative bg-gradient-to-br from-brand-yellow via-brand-amber to-yellow-600 text-white py-16 overflow-hidden">
         <div class="hero-pattern absolute inset-0 opacity-20"></div>
         <div class="absolute top-10 left-10 w-6 h-6 bg-white/20 rounded-full animate-bounce"></div>
-        <div class="absolute top-32 right-20 w-4 h-4 bg-yellow-400/30 rounded-full"></div>
+        <div class="absolute top-32 right-20 w-4 h-4 bg-yellow-300/30 rounded-full"></div>
         <div class="absolute bottom-20 left-1/4 w-3 h-3 bg-white/30 rounded-full"></div>
         
         <div class="max-w-7xl mx-auto px-6 relative z-10">
@@ -164,7 +169,7 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                     </svg>
                     <span>Shopping Cart</span>
                 </div>
-                <h1 class="text-5xl lg:text-6xl font-bold mb-4">Your <span class="text-yellow-300">Selections</span></h1>
+                <h1 class="text-5xl lg:text-6xl font-bold mb-4">Your <span class="text-yellow-200">Selections</span></h1>
                 <p class="text-xl text-white/90 leading-relaxed max-w-2xl mx-auto">
                     Review your delicious choices and proceed to checkout when ready
                 </p>
@@ -181,14 +186,14 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                 <!-- Empty Cart State -->
                 <div class="text-center py-20">
                     <div class="bg-white rounded-3xl card-shadow p-12 max-w-md mx-auto hover-lift">
-                        <div class="w-20 h-20 bg-gradient-to-br from-brand-orange/20 to-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <svg class="w-10 h-10 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-20 h-20 bg-gradient-to-br from-brand-yellow/20 to-brand-amber/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg class="w-10 h-10 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m1.6 8L5 3H3m4 10a2 2 0 11-4 0 2 2 0 014 0zm12 0a2 2 0 11-4 0 2 2 0 014 0z"></path>
                             </svg>
                         </div>
                         <h3 class="text-2xl font-bold text-gray-800 mb-3">Your cart is empty</h3>
                         <p class="text-gray-600 mb-6">Discover our delicious menu items and start building your perfect meal</p>
-                        <a href="menu.php" class="bg-gradient-to-r from-brand-orange to-red-500 text-white px-8 py-3 rounded-2xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 inline-flex items-center space-x-2">
+                        <a href="menu.php" class="bg-gradient-to-r from-brand-yellow to-brand-amber text-white px-8 py-3 rounded-2xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 inline-flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                             </svg>
@@ -214,12 +219,12 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                                             <?php if ($item['image'] && !empty($item['image'])): ?>
                                                 <img src="<?= htmlspecialchars($item['image']) ?>" 
                                                      alt="<?= htmlspecialchars($item['name']) ?>" 
-                                                     class="w-full h-full object-cover rounded-2xl border-2 border-brand-orange/20"
+                                                     class="w-full h-full object-cover rounded-2xl border-2 border-brand-yellow/20"
                                                      loading="lazy"
                                                      onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                             <?php endif; ?>
                                             <!-- Fallback Icon (shown if no image or image fails to load) -->
-                                            <div class="w-full h-full bg-gradient-to-br from-brand-orange to-red-500 rounded-2xl flex items-center justify-center <?= ($item['image'] && !empty($item['image'])) ? 'hidden' : 'flex' ?>">
+                                            <div class="w-full h-full bg-gradient-to-br from-brand-yellow to-brand-amber rounded-2xl flex items-center justify-center <?= ($item['image'] && !empty($item['image'])) ? 'hidden' : 'flex' ?>">
                                                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
                                                 </svg>
@@ -229,7 +234,7 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                                         <!-- Item Details -->
                                         <div class="flex-1 min-w-0">
                                             <h3 class="text-xl font-bold text-gray-800 mb-1"><?= htmlspecialchars($item['name']) ?></h3>
-                                            <p class="text-brand-orange font-semibold text-lg">Rs. <?= number_format($item['price'], 2) ?> each</p>
+                                            <p class="text-brand-yellow font-semibold text-lg">Rs. <?= number_format($item['price'], 2) ?> each</p>
                                             
                                             <!-- Quantity Controls -->
                                             <div class="flex items-center space-x-4 mt-4">
@@ -242,7 +247,7 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                                                                min="1" max="50" 
                                                                class="quantity-input w-20 px-3 py-2 bg-transparent border-none rounded-xl text-center font-semibold focus:outline-none">
                                                     </div>
-                                                    <button type="submit" class="bg-brand-orange text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-red-500 transition-all duration-300 flex items-center space-x-1">
+                                                    <button type="submit" class="bg-brand-yellow text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-brand-amber transition-all duration-300 flex items-center space-x-1">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                                         </svg>
@@ -281,7 +286,7 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                             <!-- Order Summary Card -->
                             <div class="bg-white rounded-3xl card-shadow p-8 hover-lift">
                                 <div class="flex items-center space-x-3 mb-6">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-brand-orange to-red-500 rounded-2xl flex items-center justify-center">
+                                    <div class="w-10 h-10 contact-icon rounded-2xl flex items-center justify-center">
                                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                                         </svg>
@@ -299,22 +304,22 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                                         <span class="text-gray-800 font-semibold text-lg">Rs. <?= number_format($total * 0.08, 2) ?></span>
                                     </div>
                                     <div class="border-t-2 border-gray-200 pt-4">
-                                        <div class="flex justify-between items-center p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border-2 border-brand-orange/20">
+                                        <div class="flex justify-between items-center p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border-2 border-brand-yellow/20">
                                             <span class="text-gray-800 font-bold text-xl">Total</span>
-                                            <span class="text-brand-orange font-bold text-2xl">Rs. <?= number_format($total * 1.08, 2) ?></span>
+                                            <span class="text-brand-yellow font-bold text-2xl">Rs. <?= number_format($total * 1.08, 2) ?></span>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <div class="space-y-3">
-                                    <a href="checkout.php" class="w-full bg-gradient-to-r from-brand-orange to-red-500 text-white py-4 px-6 rounded-2xl font-bold hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 text-center block text-lg flex items-center justify-center space-x-2">
+                                    <a href="checkout.php" class="w-full bg-gradient-to-r from-brand-yellow to-brand-amber text-white py-4 px-6 rounded-2xl font-bold hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 text-center block text-lg flex items-center justify-center space-x-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                                         </svg>
                                         <span>Proceed to Checkout</span>
                                     </a>
                                     
-                                    <a href="menu.php" class="w-full bg-white text-brand-orange border-2 border-brand-orange py-4 px-6 rounded-2xl font-bold hover:bg-orange-50 transition-all duration-300 text-center block text-lg flex items-center justify-center space-x-2">
+                                    <a href="menu.php" class="w-full bg-white text-brand-yellow border-2 border-brand-yellow py-4 px-6 rounded-2xl font-bold hover:bg-yellow-50 transition-all duration-300 text-center block text-lg flex items-center justify-center space-x-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                                         </svg>
@@ -324,10 +329,10 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                             </div>
                             
                             <!-- Quick Actions -->
-                            <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-3xl p-6 border border-orange-100">
+                            <div class="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-3xl p-6 border border-yellow-100">
                                 <div class="flex items-center space-x-3 mb-4">
-                                    <div class="w-8 h-8 bg-brand-orange/20 rounded-full flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <div class="w-8 h-8 bg-brand-yellow/20 rounded-full flex items-center justify-center">
+                                        <svg class="w-4 h-4 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                                         </svg>
                                     </div>
@@ -335,15 +340,15 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                                 </div>
                                 <div class="space-y-3">
                                     <div class="flex items-center space-x-2 text-sm text-gray-700">
-                                        <span class="w-2 h-2 bg-brand-orange rounded-full"></span>
+                                        <span class="w-2 h-2 bg-brand-yellow rounded-full"></span>
                                         <span>Free delivery over Rs. 5,000</span>
                                     </div>
                                     <div class="flex items-center space-x-2 text-sm text-gray-700">
-                                        <span class="w-2 h-2 bg-brand-orange rounded-full"></span>
+                                        <span class="w-2 h-2 bg-brand-yellow rounded-full"></span>
                                         <span>Ready in 15-30 minutes</span>
                                     </div>
                                     <div class="flex items-center space-x-2 text-sm text-gray-700">
-                                        <span class="w-2 h-2 bg-brand-orange rounded-full"></span>
+                                        <span class="w-2 h-2 bg-brand-yellow rounded-full"></span>
                                         <span>Special dietary options available</span>
                                     </div>
                                 </div>
@@ -361,7 +366,7 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
             <div class="grid md:grid-cols-4 gap-8 mb-12">
                 <div class="space-y-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-brand-orange to-red-500 rounded-xl flex items-center justify-center">
+                        <div class="w-12 h-12 bg-gradient-to-br from-brand-yellow to-brand-amber rounded-xl flex items-center justify-center">
                             <span class="text-white font-bold text-xl">C</span>
                         </div>
                         <h3 class="text-2xl font-bold">Cafe For You</h3>
@@ -372,9 +377,9 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                 <div class="space-y-4">
                     <h4 class="text-lg font-semibold">Quick Links</h4>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="menu.php" class="hover:text-white transition-colors duration-300 hover:text-brand-orange">Menu</a></li>
-                        <li><a href="reservations.php" class="hover:text-white transition-colors duration-300 hover:text-brand-orange">Reservations</a></li>
-                        <li><a href="contact.php" class="hover:text-white transition-colors duration-300 hover:text-brand-orange">Contact</a></li>
+                        <li><a href="menu.php" class="hover:text-white transition-colors duration-300 hover:text-brand-yellow">Menu</a></li>
+                        <li><a href="reservations.php" class="hover:text-white transition-colors duration-300 hover:text-brand-yellow">Reservations</a></li>
+                        <li><a href="contact.php" class="hover:text-white transition-colors duration-300 hover:text-brand-yellow">Contact</a></li>
                     </ul>
                 </div>
                 
@@ -382,13 +387,13 @@ $total = array_sum(array_column($cart_items, 'subtotal'));
                     <h4 class="text-lg font-semibold">Contact Info</h4>
                     <ul class="space-y-3 text-gray-400">
                         <li class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                             </svg>
                             <span>(555) 123-4567</span>
                         </li>
                         <li class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
                             <span>info@cafeforyou.com</span>

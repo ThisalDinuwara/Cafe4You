@@ -72,7 +72,8 @@ if (isLoggedIn()) {
             theme: {
                 extend: {
                     colors: {
-                        'brand-orange': '#FF6B35',
+                        'brand-yellow': '#FCD34D',
+                        'brand-amber': '#F59E0B',
                         'brand-cream': '#FFF8F0',
                         'brand-brown': '#8B4513',
                         'brand-gray': '#F5F5F5'
@@ -105,13 +106,13 @@ if (isLoggedIn()) {
         }
         
         .form-input:focus {
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
-            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(252, 211, 77, 0.2);
+            border-color: #FCD34D;
             transform: translateY(-2px);
         }
         
         .hero-pattern {
-            background-image: radial-gradient(circle at 1px 1px, rgba(255, 107, 53, 0.15) 1px, transparent 0);
+            background-image: radial-gradient(circle at 1px 1px, rgba(252, 211, 77, 0.15) 1px, transparent 0);
             background-size: 20px 20px;
         }
         
@@ -122,7 +123,7 @@ if (isLoggedIn()) {
         }
 
         .hero-bg {
-            background-image: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&h=800&fit=crop&crop=center');
+            background-image: url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&h=800&fit=crop&crop=center');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -137,32 +138,32 @@ if (isLoggedIn()) {
 </head>
 <body class="bg-brand-cream font-body">
     <!-- Navigation -->
-    <nav class="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-orange-100">
+    <nav class="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-yellow-100">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-brand-orange to-red-500 rounded-xl flex items-center justify-center">
+                    <div class="w-12 h-12 bg-gradient-to-br from-brand-yellow to-brand-amber rounded-xl flex items-center justify-center">
                         <span class="text-white font-bold text-xl">C</span>
                     </div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-brand-orange to-red-500 bg-clip-text text-transparent">Cafe For You</h1>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-brand-yellow to-brand-amber bg-clip-text text-transparent">Cafe For You</h1>
                 </div>
                 
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Home</a>
-                    <a href="menu.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Menu</a>
-                    <a href="reservations.php" class="text-brand-orange font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-brand-orange">Reservations</a>
-                    <a href="contact.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Contact</a>
+                    <a href="index.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Home</a>
+                    <a href="menu.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Menu</a>
+                    <a href="reservations.php" class="text-brand-yellow font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-brand-yellow">Reservations</a>
+                    <a href="contact.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Contact</a>
                     
                     <?php if (isLoggedIn()): ?>
-                        <a href="cart.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Cart</a>
-                        <a href="orders.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Orders</a>
+                        <a href="cart.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Cart</a>
+                        <a href="orders.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Orders</a>
                         <?php if (isAdmin()): ?>
-                            <a href="admin/dashboard.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Admin</a>
+                            <a href="admin/dashboard.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Admin</a>
                         <?php endif; ?>
-                        <a href="logout.php" class="bg-gradient-to-r from-brand-orange to-red-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">Logout</a>
+                        <a href="logout.php" class="bg-gradient-to-r from-brand-yellow to-brand-amber text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">Logout</a>
                     <?php else: ?>
-                        <a href="login.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Login</a>
-                        <a href="register.php" class="bg-gradient-to-r from-brand-orange to-red-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">Register</a>
+                        <a href="login.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Login</a>
+                        <a href="register.php" class="bg-gradient-to-r from-brand-yellow to-brand-amber text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">Register</a>
                     <?php endif; ?>
                 </div>
 
@@ -261,7 +262,7 @@ if (isLoggedIn()) {
                     <!-- Table capacity indicator -->
                     <div class="absolute -top-4 -right-4 bg-white rounded-2xl p-3 shadow-xl">
                         <div class="text-center">
-                            <div class="text-lg font-bold text-brand-orange">50+</div>
+                            <div class="text-lg font-bold text-brand-yellow">50+</div>
                             <div class="text-xs text-gray-600">Tables</div>
                         </div>
                     </div>
@@ -355,7 +356,7 @@ if (isLoggedIn()) {
                                           placeholder="Any special requests, dietary requirements, or celebrations we should know about..."><?= htmlspecialchars($_POST['message'] ?? '') ?></textarea>
                             </div>
                             
-                            <button type="submit" class="w-full bg-gradient-to-r from-brand-orange to-red-500 text-white py-4 px-8 rounded-2xl font-semibold hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 text-lg">
+                            <button type="submit" class="w-full bg-gradient-to-r from-brand-yellow to-brand-amber text-white py-4 px-8 rounded-2xl font-semibold hover:shadow-xl transform hover:scale-[1.02] transition-all duration-300 text-lg">
                                 <span class="flex items-center justify-center space-x-2">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
@@ -372,8 +373,8 @@ if (isLoggedIn()) {
                     <!-- Opening Hours -->
                     <div class="bg-white rounded-3xl card-shadow p-6 hover-lift">
                         <div class="flex items-center space-x-3 mb-4">
-                            <div class="w-10 h-10 bg-brand-orange/10 rounded-2xl flex items-center justify-center">
-                                <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-10 h-10 bg-brand-yellow/10 rounded-2xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
@@ -382,15 +383,15 @@ if (isLoggedIn()) {
                         <div class="space-y-3 text-gray-600">
                             <div class="flex justify-between items-center py-2 border-b border-gray-100">
                                 <span class="font-medium">Monday - Thursday:</span>
-                                <span class="text-brand-orange font-semibold">11:00 AM - 10:00 PM</span>
+                                <span class="text-brand-yellow font-semibold">11:00 AM - 10:00 PM</span>
                             </div>
                             <div class="flex justify-between items-center py-2 border-b border-gray-100">
                                 <span class="font-medium">Friday - Saturday:</span>
-                                <span class="text-brand-orange font-semibold">11:00 AM - 11:00 PM</span>
+                                <span class="text-brand-yellow font-semibold">11:00 AM - 11:00 PM</span>
                             </div>
                             <div class="flex justify-between items-center py-2">
                                 <span class="font-medium">Sunday:</span>
-                                <span class="text-brand-orange font-semibold">12:00 PM - 9:00 PM</span>
+                                <span class="text-brand-yellow font-semibold">12:00 PM - 9:00 PM</span>
                             </div>
                         </div>
                     </div>
@@ -398,8 +399,8 @@ if (isLoggedIn()) {
                     <!-- Contact Information -->
                     <div class="bg-white rounded-3xl card-shadow p-6 hover-lift">
                         <div class="flex items-center space-x-3 mb-4">
-                            <div class="w-10 h-10 bg-brand-orange/10 rounded-2xl flex items-center justify-center">
-                                <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-10 h-10 bg-brand-yellow/10 rounded-2xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                                 </svg>
                             </div>
@@ -407,8 +408,8 @@ if (isLoggedIn()) {
                         </div>
                         <div class="space-y-4 text-gray-600">
                             <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 bg-brand-orange/10 rounded-full flex items-center justify-center">
-                                    <svg class="w-4 h-4 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <div class="w-8 h-8 bg-brand-yellow/10 rounded-full flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                     </svg>
@@ -422,10 +423,10 @@ if (isLoggedIn()) {
                     </div>
                     
                     <!-- Reservation Policy -->
-                    <div class="bg-gradient-to-br from-orange-50 to-red-50 rounded-3xl p-6 border border-orange-100">
+                    <div class="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-3xl p-6 border border-yellow-100">
                         <div class="flex items-center space-x-3 mb-4">
-                            <div class="w-10 h-10 bg-brand-orange/20 rounded-2xl flex items-center justify-center">
-                                <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-10 h-10 bg-brand-yellow/20 rounded-2xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
@@ -433,19 +434,19 @@ if (isLoggedIn()) {
                         </div>
                         <ul class="text-sm text-gray-700 space-y-3">
                             <li class="flex items-start space-x-3">
-                                <div class="w-1.5 h-1.5 bg-brand-orange rounded-full mt-2"></div>
+                                <div class="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2"></div>
                                 <span>Reservations are confirmed within 24 hours via email or phone</span>
                             </li>
                             <li class="flex items-start space-x-3">
-                                <div class="w-1.5 h-1.5 bg-brand-orange rounded-full mt-2"></div>
+                                <div class="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2"></div>
                                 <span>Please arrive within 15 minutes of your reservation time</span>
                             </li>
                             <li class="flex items-start space-x-3">
-                                <div class="w-1.5 h-1.5 bg-brand-orange rounded-full mt-2"></div>
+                                <div class="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2"></div>
                                 <span>Cancellations must be made at least 2 hours in advance</span>
                             </li>
                             <li class="flex items-start space-x-3">
-                                <div class="w-1.5 h-1.5 bg-brand-orange rounded-full mt-2"></div>
+                                <div class="w-1.5 h-1.5 bg-brand-yellow rounded-full mt-2"></div>
                                 <span>Large parties (8+ guests) may require a deposit</span>
                             </li>
                         </ul>
@@ -454,8 +455,8 @@ if (isLoggedIn()) {
                     <!-- Special Features -->
                     <div class="bg-white rounded-3xl card-shadow p-6 hover-lift">
                         <div class="flex items-center space-x-3 mb-4">
-                            <div class="w-10 h-10 bg-brand-orange/10 rounded-2xl flex items-center justify-center">
-                                <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-10 h-10 bg-brand-yellow/10 rounded-2xl flex items-center justify-center">
+                                <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
                                 </svg>
                             </div>
@@ -494,19 +495,19 @@ if (isLoggedIn()) {
     <section class="py-20 bg-brand-cream">
         <div class="max-w-4xl mx-auto px-6 text-center">
             <div class="space-y-8">
-                <h2 class="text-4xl font-bold text-gray-800">Need Help with Your <span class="text-brand-orange">Reservation?</span></h2>
+                <h2 class="text-4xl font-bold text-gray-800">Need Help with Your <span class="text-brand-yellow">Reservation?</span></h2>
                 <p class="text-xl text-gray-600">
                     Our friendly staff is here to help you plan the perfect dining experience. Call us directly for immediate assistance.
                 </p>
                 
                 <div class="flex flex-wrap justify-center gap-6">
-                    <a href="tel:+15551234567" class="bg-gradient-to-r from-brand-orange to-red-500 text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2">
+                    <a href="tel:+15551234567" class="bg-gradient-to-r from-brand-yellow to-brand-amber text-white px-8 py-4 rounded-full font-semibold hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center space-x-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                         </svg>
                         <span>Call Now</span>
                     </a>
-                    <a href="mailto:reservations@cafeforyou.com" class="border-2 border-brand-orange text-brand-orange px-8 py-4 rounded-full font-semibold hover:bg-brand-orange hover:text-white transition-all duration-300 flex items-center space-x-2">
+                    <a href="mailto:reservations@cafeforyou.com" class="border-2 border-brand-yellow text-brand-yellow px-8 py-4 rounded-full font-semibold hover:bg-brand-yellow hover:text-white transition-all duration-300 flex items-center space-x-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
@@ -523,7 +524,7 @@ if (isLoggedIn()) {
             <div class="grid md:grid-cols-4 gap-8 mb-12">
                 <div class="space-y-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-brand-orange to-red-500 rounded-xl flex items-center justify-center">
+                        <div class="w-12 h-12 bg-gradient-to-br from-brand-yellow to-brand-amber rounded-xl flex items-center justify-center">
                             <span class="text-white font-bold text-xl">C</span>
                         </div>
                         <h3 class="text-2xl font-bold">Cafe For You</h3>
@@ -534,9 +535,9 @@ if (isLoggedIn()) {
                 <div class="space-y-4">
                     <h4 class="text-lg font-semibold">Quick Links</h4>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="menu.php" class="hover:text-white transition-colors duration-300 hover:text-brand-orange">Menu</a></li>
-                        <li><a href="reservations.php" class="hover:text-white transition-colors duration-300 hover:text-brand-orange">Reservations</a></li>
-                        <li><a href="contact.php" class="hover:text-white transition-colors duration-300 hover:text-brand-orange">Contact</a></li>
+                        <li><a href="menu.php" class="hover:text-white transition-colors duration-300 hover:text-brand-yellow">Menu</a></li>
+                        <li><a href="reservations.php" class="hover:text-white transition-colors duration-300 hover:text-brand-yellow">Reservations</a></li>
+                        <li><a href="contact.php" class="hover:text-white transition-colors duration-300 hover:text-brand-yellow">Contact</a></li>
                     </ul>
                 </div>
                 
@@ -544,7 +545,7 @@ if (isLoggedIn()) {
                     <h4 class="text-lg font-semibold">Contact Info</h4>
                     <ul class="space-y-3 text-gray-400">
                         <li class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
@@ -554,13 +555,13 @@ if (isLoggedIn()) {
                             <span class="ml-8">City, State 12345</span>
                         </li>
                         <li class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                             </svg>
                             <span>(555) 123-4567</span>
                         </li>
                         <li class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
                             <span>info@cafeforyou.com</span>

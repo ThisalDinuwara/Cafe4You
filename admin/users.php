@@ -6,10 +6,193 @@ require_once '../includes/functions.php';
 
 requireAdmin();
 
+// Ensure a session exists for CSRF + user info (usually started in auth.php)
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+/* -----------------------------------------
+   CSRF token (generate once per session)
+----------------------------------------- */
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $database = new Database();
 $db = $database->getConnection();
 
-// Get all users with stats
+/* -----------------------------------------
+   Helpers
+----------------------------------------- */
+function canDeleteUserRow(array $userRow): bool {
+    $role = strtolower($userRow['role'] ?? '');
+    if ($role === 'admin') return false;
+    $current_id = $_SESSION['user_id'] ?? null;
+    if ($current_id && (int)$current_id === (int)($userRow['id'] ?? 0)) return false;
+    return true;
+}
+
+function canEditRoleOf(array $target): bool {
+    $current_id = $_SESSION['user_id'] ?? null;
+    if ($current_id && (int)$current_id === (int)($target['id'] ?? 0)) {
+        // Do not allow changing your own role
+        return false;
+    }
+    return true;
+}
+
+function sanitize_text($v) { return trim((string)$v); }
+function sanitize_email($v) { return trim((string)$v); }
+
+/* -----------------------------------------
+   Handle DELETE (POST)
+----------------------------------------- */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete_user') {
+    $posted_token   = $_POST['csrf_token'] ?? '';
+    $delete_user_id = (int)($_POST['user_id'] ?? 0);
+
+    if (!hash_equals($_SESSION['csrf_token'], $posted_token)) {
+        if (function_exists('setMessage')) setMessage('Invalid request. Please try again.', 'error');
+        header('Location: users.php?msg=csrf');
+        exit;
+    }
+
+    $current_admin_id = $_SESSION['user_id'] ?? null;
+    if ($current_admin_id && (int)$current_admin_id === $delete_user_id) {
+        if (function_exists('setMessage')) setMessage('You cannot delete your own account.', 'error');
+        header('Location: users.php?msg=cannot_delete_self');
+        exit;
+    }
+
+    $check_stmt = $db->prepare("SELECT id, role FROM users WHERE id = ? LIMIT 1");
+    $check_stmt->execute([$delete_user_id]);
+    $target_user = $check_stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$target_user) {
+        if (function_exists('setMessage')) setMessage('User not found.', 'error');
+        header('Location: users.php?msg=not_found');
+        exit;
+    }
+
+    if (strtolower($target_user['role']) === 'admin') {
+        if (function_exists('setMessage')) setMessage('You cannot delete an admin user.', 'error');
+        header('Location: users.php?msg=cannot_delete_admin');
+        exit;
+    }
+
+    try {
+        $db->beginTransaction();
+
+        $del_res = $db->prepare("DELETE FROM reservations WHERE user_id = ?");
+        $del_res->execute([$delete_user_id]);
+
+        $del_orders = $db->prepare("DELETE FROM orders WHERE user_id = ?");
+        $del_orders->execute([$delete_user_id]);
+
+        $del_user = $db->prepare("DELETE FROM users WHERE id = ? LIMIT 1");
+        $del_user->execute([$delete_user_id]);
+
+        $db->commit();
+
+        if (function_exists('setMessage')) setMessage('User deleted successfully.', 'success');
+        header('Location: users.php?deleted=1');
+        exit;
+    } catch (Exception $e) {
+        $db->rollBack();
+        if (function_exists('setMessage')) setMessage('Delete failed: ' . $e->getMessage(), 'error');
+        header('Location: users.php?msg=delete_failed');
+        exit;
+    }
+}
+
+/* -----------------------------------------
+   Handle UPDATE (POST)
+----------------------------------------- */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'update_user') {
+    $posted_token = $_POST['csrf_token'] ?? '';
+    if (!hash_equals($_SESSION['csrf_token'], $posted_token)) {
+        if (function_exists('setMessage')) setMessage('Invalid request. Please try again.', 'error');
+        header('Location: users.php?msg=csrf');
+        exit;
+    }
+
+    $user_id   = (int)($_POST['user_id'] ?? 0);
+    $full_name = sanitize_text($_POST['full_name'] ?? '');
+    $username  = sanitize_text($_POST['username'] ?? '');
+    $email     = sanitize_email($_POST['email'] ?? '');
+    $phone     = sanitize_text($_POST['phone'] ?? '');
+    $address   = sanitize_text($_POST['address'] ?? '');
+    $role_in   = sanitize_text($_POST['role'] ?? 'user');
+
+    // Load target user
+    $user_stmt = $db->prepare("SELECT * FROM users WHERE id = ? LIMIT 1");
+    $user_stmt->execute([$user_id]);
+    $target = $user_stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$target) {
+        if (function_exists('setMessage')) setMessage('User not found.', 'error');
+        header('Location: users.php?msg=not_found');
+        exit;
+    }
+
+    // Basic validation
+    $errors = [];
+    if ($full_name === '') $errors[] = 'Full name is required.';
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'Valid email is required.';
+
+    // Duplicate email check
+    $dup_stmt = $db->prepare("SELECT id FROM users WHERE email = ? AND id <> ? LIMIT 1");
+    $dup_stmt->execute([$email, $user_id]);
+    if ($dup_stmt->fetch()) $errors[] = 'Email is already in use by another account.';
+
+    // Role editing permissions
+    $final_role = $target['role']; // default keep existing
+    if (canEditRoleOf($target)) {
+        $role_in = strtolower($role_in);
+        if (!in_array($role_in, ['admin', 'user'], true)) {
+            $errors[] = 'Invalid role.';
+        } else {
+            $final_role = $role_in;
+        }
+    }
+
+    if (!empty($errors)) {
+        if (function_exists('setMessage')) setMessage(implode(' ', $errors), 'error');
+        header('Location: users.php?edit=' . $user_id);
+        exit;
+    }
+
+    // Update
+    $upd = $db->prepare("
+        UPDATE users
+           SET full_name = ?, username = ?, email = ?, phone = ?, address = ?, role = ?
+         WHERE id = ?
+         LIMIT 1
+    ");
+    $ok = $upd->execute([
+        $full_name,
+        $username,
+        $email,
+        $phone,
+        $address,
+        $final_role,
+        $user_id
+    ]);
+
+    if ($ok) {
+        if (function_exists('setMessage')) setMessage('User updated successfully.', 'success');
+        header('Location: users.php?view=' . $user_id);
+        exit;
+    } else {
+        if (function_exists('setMessage')) setMessage('Update failed. Please try again.', 'error');
+        header('Location: users.php?edit=' . $user_id);
+        exit;
+    }
+}
+
+/* -----------------------------------------
+   Get all users with stats
+----------------------------------------- */
 $users_query = "SELECT u.*, 
                 COUNT(DISTINCT o.id) as total_orders,
                 SUM(o.total_amount) as total_spent,
@@ -23,25 +206,29 @@ $users_stmt = $db->prepare($users_query);
 $users_stmt->execute();
 $users = $users_stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get user details if requested
+/* -----------------------------------------
+   Load user for view/edit modal
+----------------------------------------- */
 $user_details = null;
-if (isset($_GET['view'])) {
-    $user_id = (int)$_GET['view'];
-    
-    // Get user info
+$user_orders = [];
+$user_reservations = [];
+$edit_mode = false;
+
+if (isset($_GET['view']) || isset($_GET['edit'])) {
+    $user_id = (int)($_GET['view'] ?? $_GET['edit']);
+    $edit_mode = isset($_GET['edit']);
+
     $user_query = "SELECT * FROM users WHERE id = ?";
     $user_stmt = $db->prepare($user_query);
     $user_stmt->execute([$user_id]);
     $user_details = $user_stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if ($user_details) {
-        // Get user's recent orders
         $orders_query = "SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC LIMIT 5";
         $orders_stmt = $db->prepare($orders_query);
         $orders_stmt->execute([$user_id]);
         $user_orders = $orders_stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Get user's recent reservations
+
         $reservations_query = "SELECT * FROM reservations WHERE user_id = ? ORDER BY created_at DESC LIMIT 5";
         $reservations_stmt = $db->prepare($reservations_query);
         $reservations_stmt->execute([$user_id]);
@@ -49,7 +236,6 @@ if (isset($_GET['view'])) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,7 +252,7 @@ if (isset($_GET['view'])) {
                 <div class="flex items-center space-x-4">
                     <h1 class="text-2xl font-bold text-orange-400">Admin Panel</h1>
                 </div>
-                
+
                 <div class="flex items-center space-x-6">
                     <span>Welcome, <?= htmlspecialchars($_SESSION['full_name']) ?></span>
                     <a href="../index.php" class="text-gray-300 hover:text-white transition">View Site</a>
@@ -96,7 +282,7 @@ if (isset($_GET['view'])) {
         <main class="flex-1 p-8">
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-gray-800">User Management</h1>
-                <p class="text-gray-600 mt-2">View and manage customer accounts</p>
+                <p class="text-gray-600 mt-2">View, edit, and manage customer accounts</p>
             </div>
 
             <?php displayMessage(); ?>
@@ -150,7 +336,23 @@ if (isset($_GET['view'])) {
                                     <?= date('M j, Y', strtotime($user['created_at'])) ?>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="users.php?view=<?= $user['id'] ?>" class="text-orange-600 hover:text-orange-900">View Details</a>
+                                    <div class="flex items-center gap-3">
+                                        <a href="users.php?view=<?= (int)$user['id'] ?>" class="text-orange-600 hover:text-orange-900">View</a>
+                                        <a href="users.php?edit=<?= (int)$user['id'] ?>" class="text-blue-600 hover:text-blue-900">Edit</a>
+
+                                        <?php if (canDeleteUserRow($user)): ?>
+                                            <form method="post" action="users.php" onsubmit="return confirm('Delete this user permanently? This cannot be undone.');">
+                                                <input type="hidden" name="action" value="delete_user">
+                                                <input type="hidden" name="user_id" value="<?= (int)$user['id'] ?>">
+                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                <button type="submit" class="text-red-600 hover:text-red-800">
+                                                    Delete
+                                                </button>
+                                            </form>
+                                        <?php else: ?>
+                                            <span class="text-gray-400 cursor-not-allowed" title="Delete not allowed">Delete</span>
+                                        <?php endif; ?>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -160,122 +362,205 @@ if (isset($_GET['view'])) {
         </main>
     </div>
 
-    <!-- User Details Modal -->
+    <!-- User Modal (View or Edit) -->
     <?php if ($user_details): ?>
         <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="user-modal">
             <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
                 <div class="mt-3">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-medium text-gray-900">User Details: <?= htmlspecialchars($user_details['full_name']) ?></h3>
-                        <a href="users.php" class="text-gray-400 hover:text-gray-600">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </a>
-                    </div>
-                    
-                    <div class="grid md:grid-cols-2 gap-6 mb-6">
-                        <!-- User Information -->
-                        <div class="bg-gray-50 rounded-lg p-4">
-                            <h4 class="font-semibold text-gray-800 mb-3">Personal Information</h4>
-                            <div class="space-y-2 text-sm">
-                                <p><strong>Username:</strong> <?= htmlspecialchars($user_details['username']) ?></p>
-                                <p><strong>Email:</strong> <?= htmlspecialchars($user_details['email']) ?></p>
-                                <p><strong>Phone:</strong> <?= htmlspecialchars($user_details['phone'] ?: 'Not provided') ?></p>
-                                <p><strong>Role:</strong> <?= ucfirst($user_details['role']) ?></p>
-                                <p><strong>Joined:</strong> <?= date('M j, Y g:i A', strtotime($user_details['created_at'])) ?></p>
-                            </div>
-                            <?php if ($user_details['address']): ?>
-                                <div class="mt-3">
-                                    <strong class="text-sm">Address:</strong>
-                                    <p class="text-sm text-gray-600 mt-1"><?= nl2br(htmlspecialchars($user_details['address'])) ?></p>
-                                </div>
+                        <h3 class="text-xl font-medium text-gray-900">
+                            <?= $edit_mode ? 'Edit User: ' : 'User Details: ' ?>
+                            <?= htmlspecialchars($user_details['full_name']) ?>
+                        </h3>
+                        <div class="flex items-center gap-3">
+                            <?php if (!$edit_mode): ?>
+                                <a href="users.php?edit=<?= (int)$user_details['id'] ?>" class="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700">
+                                    Edit
+                                </a>
+                                <?php if (canDeleteUserRow($user_details)): ?>
+                                    <form method="post" action="users.php" onsubmit="return confirm('Delete this user permanently? This cannot be undone.');">
+                                        <input type="hidden" name="action" value="delete_user">
+                                        <input type="hidden" name="user_id" value="<?= (int)$user_details['id'] ?>">
+                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                        <button type="submit" class="px-3 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700">
+                                            Delete
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
                             <?php endif; ?>
-                        </div>
-                        
-                        <!-- Statistics -->
-                        <div class="space-y-4">
-                            <div class="bg-blue-50 rounded-lg p-4">
-                                <h5 class="font-semibold text-blue-800">Orders</h5>
-                                <p class="text-2xl font-bold text-blue-600"><?= count($user_orders ?? []) ?></p>
-                            </div>
-                            <div class="bg-green-50 rounded-lg p-4">
-                                <h5 class="font-semibold text-green-800">Reservations</h5>
-                                <p class="text-2xl font-bold text-green-600"><?= count($user_reservations ?? []) ?></p>
-                            </div>
+                            <a href="users.php" class="text-gray-400 hover:text-gray-600" title="Close">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </a>
                         </div>
                     </div>
-                    
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <!-- Recent Orders -->
-                        <div>
-                            <h4 class="font-semibold text-gray-800 mb-3">Recent Orders</h4>
-                            <?php if (empty($user_orders)): ?>
-                                <p class="text-gray-500 text-sm">No orders found</p>
-                            <?php else: ?>
-                                <div class="space-y-2">
-                                    <?php foreach ($user_orders as $order): ?>
-                                        <div class="bg-white border rounded-lg p-3">
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-sm font-medium">Order #<?= $order['id'] ?></span>
-                                                <span class="text-sm text-gray-500">$<?= number_format($order['total_amount'], 2) ?></span>
-                                            </div>
-                                            <div class="flex justify-between items-center mt-1">
-                                                <span class="text-xs text-gray-400"><?= date('M j, Y', strtotime($order['created_at'])) ?></span>
-                                                <span class="px-2 py-1 text-xs rounded-full
-                                                    <?php
-                                                    $status_colors = [
-                                                        'pending' => 'bg-yellow-100 text-yellow-800',
-                                                        'confirmed' => 'bg-blue-100 text-blue-800',
-                                                        'preparing' => 'bg-purple-100 text-purple-800',
-                                                        'ready' => 'bg-green-100 text-green-800',
-                                                        'delivered' => 'bg-gray-100 text-gray-800',
-                                                        'cancelled' => 'bg-red-100 text-red-800'
-                                                    ];
-                                                    echo $status_colors[$order['status']] ?? 'bg-gray-100 text-gray-800';
-                                                    ?>">
-                                                    <?= ucfirst($order['status']) ?>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
+
+                    <?php if ($edit_mode): ?>
+                        <!-- Edit Form -->
+                        <form method="post" action="users.php" class="space-y-4">
+                            <input type="hidden" name="action" value="update_user">
+                            <input type="hidden" name="user_id" value="<?= (int)$user_details['id'] ?>">
+                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                                    <input type="text" name="full_name" value="<?= htmlspecialchars($user_details['full_name']) ?>"
+                                           class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500">
                                 </div>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <!-- Recent Reservations -->
-                        <div>
-                            <h4 class="font-semibold text-gray-800 mb-3">Recent Reservations</h4>
-                            <?php if (empty($user_reservations)): ?>
-                                <p class="text-gray-500 text-sm">No reservations found</p>
-                            <?php else: ?>
-                                <div class="space-y-2">
-                                    <?php foreach ($user_reservations as $reservation): ?>
-                                        <div class="bg-white border rounded-lg p-3">
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-sm font-medium"><?= date('M j, Y', strtotime($reservation['date'])) ?></span>
-                                                <span class="text-sm text-gray-500"><?= $reservation['guests'] ?> guests</span>
-                                            </div>
-                                            <div class="flex justify-between items-center mt-1">
-                                                <span class="text-xs text-gray-400"><?= date('g:i A', strtotime($reservation['time'])) ?></span>
-                                                <span class="px-2 py-1 text-xs rounded-full
-                                                    <?php
-                                                    $status_colors = [
-                                                        'pending' => 'bg-yellow-100 text-yellow-800',
-                                                        'confirmed' => 'bg-green-100 text-green-800',
-                                                        'cancelled' => 'bg-red-100 text-red-800'
-                                                    ];
-                                                    echo $status_colors[$reservation['status']] ?? 'bg-gray-100 text-gray-800';
-                                                    ?>">
-                                                    <?= ucfirst($reservation['status']) ?>
-                                                </span>
-                                            </div>
-                                        </div>
-                                    <?php endforeach; ?>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Username</label>
+                                    <input type="text" name="username" value="<?= htmlspecialchars($user_details['username'] ?? '') ?>"
+                                           class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500">
                                 </div>
-                            <?php endif; ?>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                                    <input type="email" name="email" value="<?= htmlspecialchars($user_details['email']) ?>"
+                                           class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Phone</label>
+                                    <input type="text" name="phone" value="<?= htmlspecialchars($user_details['phone'] ?? '') ?>"
+                                           class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500">
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-sm font-medium text-gray-700">Address</label>
+                                    <textarea name="address" rows="3"
+                                              class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500"><?= htmlspecialchars($user_details['address'] ?? '') ?></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Role</label>
+                                    <?php $allow_role_edit = canEditRoleOf($user_details); ?>
+                                    <select name="role"
+                                            class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                                            <?= $allow_role_edit ? '' : 'disabled' ?>>
+                                        <?php
+                                            $role_val = strtolower($user_details['role']);
+                                            $roles = ['user' => 'User', 'admin' => 'Admin'];
+                                            foreach ($roles as $val => $label) {
+                                                $sel = ($role_val === $val) ? 'selected' : '';
+                                                echo "<option value=\"{$val}\" {$sel}>{$label}</option>";
+                                            }
+                                        ?>
+                                    </select>
+                                    <?php if (!$allow_role_edit): ?>
+                                        <p class="text-xs text-gray-500 mt-1">You cannot change your own role.</p>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-end gap-3 pt-2">
+                                <a href="users.php?view=<?= (int)$user_details['id'] ?>" class="px-4 py-2 rounded border text-gray-700 hover:bg-gray-50">Cancel</a>
+                                <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save Changes</button>
+                            </div>
+                        </form>
+                    <?php else: ?>
+                        <!-- View Mode -->
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <!-- User Information -->
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-semibold text-gray-800 mb-3">Personal Information</h4>
+                                <div class="space-y-2 text-sm">
+                                    <p><strong>Username:</strong> <?= htmlspecialchars($user_details['username'] ?? '') ?></p>
+                                    <p><strong>Email:</strong> <?= htmlspecialchars($user_details['email']) ?></p>
+                                    <p><strong>Phone:</strong> <?= htmlspecialchars($user_details['phone'] ?: 'Not provided') ?></p>
+                                    <p><strong>Role:</strong> <?= ucfirst($user_details['role']) ?></p>
+                                    <p><strong>Joined:</strong> <?= date('M j, Y g:i A', strtotime($user_details['created_at'])) ?></p>
+                                </div>
+                                <?php if (!empty($user_details['address'])): ?>
+                                    <div class="mt-3">
+                                        <strong class="text-sm">Address:</strong>
+                                        <p class="text-sm text-gray-600 mt-1"><?= nl2br(htmlspecialchars($user_details['address'])) ?></p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Statistics -->
+                            <div class="space-y-4">
+                                <div class="bg-blue-50 rounded-lg p-4">
+                                    <h5 class="font-semibold text-blue-800">Orders</h5>
+                                    <p class="text-2xl font-bold text-blue-600"><?= count($user_orders ?? []) ?></p>
+                                </div>
+                                <div class="bg-green-50 rounded-lg p-4">
+                                    <h5 class="font-semibold text-green-800">Reservations</h5>
+                                    <p class="text-2xl font-bold text-green-600"><?= count($user_reservations ?? []) ?></p>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- Recent Orders -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3">Recent Orders</h4>
+                                <?php if (empty($user_orders)): ?>
+                                    <p class="text-gray-500 text-sm">No orders found</p>
+                                <?php else: ?>
+                                    <div class="space-y-2">
+                                        <?php foreach ($user_orders as $order): ?>
+                                            <div class="bg-white border rounded-lg p-3">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-sm font-medium">Order #<?= (int)$order['id'] ?></span>
+                                                    <span class="text-sm text-gray-500">$<?= number_format((float)$order['total_amount'], 2) ?></span>
+                                                </div>
+                                                <div class="flex justify-between items-center mt-1">
+                                                    <span class="text-xs text-gray-400"><?= date('M j, Y', strtotime($order['created_at'])) ?></span>
+                                                    <span class="px-2 py-1 text-xs rounded-full
+                                                        <?php
+                                                        $status_colors = [
+                                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                                            'confirmed' => 'bg-blue-100 text-blue-800',
+                                                            'preparing' => 'bg-purple-100 text-purple-800',
+                                                            'ready' => 'bg-green-100 text-green-800',
+                                                            'delivered' => 'bg-gray-100 text-gray-800',
+                                                            'cancelled' => 'bg-red-100 text-red-800'
+                                                        ];
+                                                        echo $status_colors[$order['status']] ?? 'bg-gray-100 text-gray-800';
+                                                        ?>">
+                                                        <?= ucfirst($order['status']) ?>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Recent Reservations -->
+                            <div>
+                                <h4 class="font-semibold text-gray-800 mb-3">Recent Reservations</h4>
+                                <?php if (empty($user_reservations)): ?>
+                                    <p class="text-gray-500 text-sm">No reservations found</p>
+                                <?php else: ?>
+                                    <div class="space-y-2">
+                                        <?php foreach ($user_reservations as $reservation): ?>
+                                            <div class="bg-white border rounded-lg p-3">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-sm font-medium"><?= date('M j, Y', strtotime($reservation['date'])) ?></span>
+                                                    <span class="text-sm text-gray-500"><?= (int)$reservation['guests'] ?> guests</span>
+                                                </div>
+                                                <div class="flex justify-between items-center mt-1">
+                                                    <span class="text-xs text-gray-400"><?= date('g:i A', strtotime($reservation['time'])) ?></span>
+                                                    <span class="px-2 py-1 text-xs rounded-full
+                                                        <?php
+                                                        $status_colors = [
+                                                            'pending' => 'bg-yellow-100 text-yellow-800',
+                                                            'confirmed' => 'bg-green-100 text-green-800',
+                                                            'cancelled' => 'bg-red-100 text-red-800'
+                                                        ];
+                                                        echo $status_colors[$reservation['status']] ?? 'bg-gray-100 text-gray-800';
+                                                        ?>">
+                                                        <?= ucfirst($reservation['status']) ?>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
                 </div>
             </div>
         </div>
