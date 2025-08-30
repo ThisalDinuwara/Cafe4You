@@ -235,6 +235,12 @@ if (isset($_GET['view']) || isset($_GET['edit'])) {
         $user_reservations = $reservations_stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
+
+// Calculate stats
+$total_users = count($users);
+$admin_count = count(array_filter($users, fn($u) => $u['role'] === 'admin'));
+$user_count = $total_users - $admin_count;
+$total_spent = array_sum(array_column($users, 'total_spent'));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -243,197 +249,414 @@ if (isset($_GET['view']) || isset($_GET['edit'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management - Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-yellow': '#FCD34D',
+                        'brand-amber': '#F59E0B',
+                        'brand-cream': '#FFF8F0',
+                        'sidebar-bg': '#2C3E50',
+                        'sidebar-hover': '#34495E'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        .card-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .gradient-card {
+            background: linear-gradient(135deg, var(--tw-gradient-stops));
+        }
+        
+        .nav-item {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #FCD34D;
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .nav-item.active {
+            background: rgba(252, 211, 77, 0.1);
+            color: #FCD34D;
+            border-right: 3px solid #FCD34D;
+        }
+    </style>
 </head>
-<body class="bg-gray-50">
-    <!-- Admin Navigation -->
-    <nav class="bg-gray-800 text-white">
-        <div class="max-w-7xl mx-auto px-4">
+<body class="bg-gray-50 font-sans">
+    <!-- Top Navigation -->
+    <nav class="bg-sidebar-bg text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
-                    <h1 class="text-2xl font-bold text-orange-400">Admin Panel</h1>
+                    <div class="w-10 h-10 bg-gradient-to-br from-brand-yellow to-brand-amber rounded-xl flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">C</span>
+                    </div>
+                    <h1 class="text-xl font-bold">Cafe For You - Admin</h1>
                 </div>
 
                 <div class="flex items-center space-x-6">
-                    <span>Welcome, <?= htmlspecialchars($_SESSION['full_name']) ?></span>
-                    <a href="../index.php" class="text-gray-300 hover:text-white transition">View Site</a>
-                    <a href="../logout.php" class="bg-orange-600 text-white px-4 py-2 rounded hover:bg-orange-700 transition">Logout</a>
+                    <span class="text-gray-300">Welcome, <?= htmlspecialchars($_SESSION['full_name']) ?></span>
+                    <a href="../index.php" class="text-gray-300 hover:text-white transition-colors duration-300">View Site</a>
+                    <a href="../logout.php" class="bg-gradient-to-r from-brand-yellow to-brand-amber text-white px-4 py-2 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 font-medium">Logout</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <div class="flex">
+    <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 bg-white shadow-lg min-h-screen">
+        <aside class="w-64 bg-white shadow-lg">
             <nav class="mt-8">
                 <div class="px-4 space-y-2">
-                    <a href="dashboard.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">Dashboard</a>
-                    <a href="orders.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">Orders</a>
-                    <a href="menu.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">Menu Management</a>
-                    <a href="categories.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">Categories</a>
-                    <a href="reservations.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">Reservations</a>
-                    <a href="users.php" class="block px-4 py-2 text-gray-700 bg-orange-50 border-r-4 border-orange-600 font-medium">Users</a>
-                    <a href="messages.php" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition">Contact Messages</a>
+                    <a href="dashboard.php" class="nav-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-all duration-300 rounded-lg mx-2">
+                        <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="orders.php" class="nav-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-all duration-300 rounded-lg mx-2">
+                        <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                        </svg>
+                        Orders
+                    </a>
+                    <a href="menu.php" class="nav-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-all duration-300 rounded-lg mx-2">
+                        <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        Menu Management
+                    </a>
+                    <a href="categories.php" class="nav-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-all duration-300 rounded-lg mx-2">
+                        <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+                        </svg>
+                        Categories
+                    </a>
+                    <a href="reservations.php" class="nav-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-all duration-300 rounded-lg mx-2">
+                        <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                        </svg>
+                        Reservations
+                    </a>
+                    <a href="users.php" class="nav-item active flex items-center px-4 py-3 text-brand-yellow bg-yellow-50 transition-all duration-300 rounded-lg mx-2 font-medium">
+                        <svg class="w-5 h-5 mr-3 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                        </svg>
+                        Users
+                    </a>
+                    <a href="messages.php" class="nav-item flex items-center px-4 py-3 text-gray-700 hover:bg-gray-50 transition-all duration-300 rounded-lg mx-2">
+                        <svg class="w-5 h-5 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                        Contact Messages
+                    </a>
                 </div>
             </nav>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 p-8">
-            <div class="mb-8">
-                <h1 class="text-3xl font-bold text-gray-800">User Management</h1>
-                <p class="text-gray-600 mt-2">View, edit, and manage customer accounts</p>
-            </div>
+        <main class="flex-1 overflow-hidden">
+            <div class="p-8">
+                <!-- Header Section -->
+                <div class="mb-8">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-2xl flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-800">User Management</h1>
+                            <p class="text-gray-600 mt-1">Manage customer accounts and user permissions</p>
+                        </div>
+                    </div>
+                </div>
 
-            <?php displayMessage(); ?>
+                <?php displayMessage(); ?>
 
-            <!-- Users Table -->
-            <div class="bg-white rounded-lg shadow overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orders</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Spent</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reservations</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <?php foreach ($users as $user): ?>
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="flex items-center">
-                                        <div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                                            <span class="text-orange-600 font-medium text-sm">
-                                                <?= strtoupper(substr($user['full_name'], 0, 2)) ?>
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Total Users -->
+                    <div class="gradient-card from-purple-500 to-purple-600 rounded-2xl p-6 text-white hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-white/80 text-sm font-medium">Total Users</h3>
+                            <svg class="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                        </div>
+                        <div class="text-3xl font-bold mb-2"><?= $total_users ?></div>
+                        <div class="text-white/70 text-sm">Registered accounts</div>
+                    </div>
+
+                    <!-- Regular Users -->
+                    <div class="gradient-card from-blue-500 to-blue-600 rounded-2xl p-6 text-white hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-white/80 text-sm font-medium">Regular Users</h3>
+                            <svg class="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                            </svg>
+                        </div>
+                        <div class="text-3xl font-bold mb-2"><?= $user_count ?></div>
+                        <div class="text-white/70 text-sm">Customer accounts</div>
+                    </div>
+
+                    <!-- Admins -->
+                    <div class="gradient-card from-green-500 to-green-600 rounded-2xl p-6 text-white hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-white/80 text-sm font-medium">Admin Users</h3>
+                            <svg class="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <div class="text-3xl font-bold mb-2"><?= $admin_count ?></div>
+                        <div class="text-white/70 text-sm">System administrators</div>
+                    </div>
+
+                    <!-- Total Revenue -->
+                    <div class="gradient-card from-brand-yellow to-brand-amber rounded-2xl p-6 text-white hover-lift">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-white/80 text-sm font-medium">Total Revenue</h3>
+                            <svg class="w-8 h-8 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                            </svg>
+                        </div>
+                        <div class="text-3xl font-bold mb-2">$<?= number_format($total_spent, 0) ?></div>
+                        <div class="text-white/70 text-sm">From all users</div>
+                    </div>
+                </div>
+
+                <!-- Users Table -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                    <div class="bg-gradient-to-r from-brand-yellow to-brand-amber px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <svg class="w-6 h-6 text-white mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                </svg>
+                                <h3 class="text-white font-semibold text-lg">User Accounts</h3>
+                            </div>
+                            <div class="text-white/90 text-sm">
+                                <span class="bg-white/20 px-3 py-1 rounded-full">
+                                    <?= $total_users ?> Total Users
+                                </span>
+                            </div>
+                        </div>
+                        <p class="text-white/80 text-sm mt-1">Manage customer accounts and permissions (<?= $total_users ?> users)</p>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">USER ID</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">CUSTOMER</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ROLE</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ORDERS</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">TOTAL SPENT</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">STATUS</th>
+                                    <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-100">
+                                <?php $counter = 1; foreach ($users as $user): ?>
+                                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                                        <!-- User ID -->
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">
+                                                #<?= $counter++ ?>
+                                            </div>
+                                        </td>
+
+                                        <!-- Customer Info -->
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center mr-3">
+                                                    <span class="text-white font-medium text-sm">
+                                                        <?= strtoupper(substr($user['full_name'], 0, 2)) ?>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <div class="text-sm font-semibold text-gray-900"><?= htmlspecialchars($user['full_name']) ?></div>
+                                                    <div class="text-xs text-gray-500"><?= htmlspecialchars($user['email']) ?></div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <!-- Role -->
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                                                <?= $user['role'] === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800' ?>">
+                                                <?= $user['role'] === 'admin' ? '👑 Admin' : '👤 Customer' ?>
                                             </span>
-                                        </div>
-                                        <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900"><?= htmlspecialchars($user['full_name']) ?></div>
-                                            <div class="text-sm text-gray-500"><?= htmlspecialchars($user['email']) ?></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                        <?= $user['role'] === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800' ?>">
-                                        <?= ucfirst($user['role']) ?>
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <?= $user['total_orders'] ?: 0 ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    $<?= number_format($user['total_spent'] ?: 0, 2) ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    <?= $user['total_reservations'] ?: 0 ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    <?= date('M j, Y', strtotime($user['created_at'])) ?>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div class="flex items-center gap-3">
-                                        <a href="users.php?view=<?= (int)$user['id'] ?>" class="text-orange-600 hover:text-orange-900">View</a>
-                                        <a href="users.php?edit=<?= (int)$user['id'] ?>" class="text-blue-600 hover:text-blue-900">Edit</a>
+                                        </td>
 
-                                        <?php if (canDeleteUserRow($user)): ?>
-                                            <form method="post" action="users.php" onsubmit="return confirm('Delete this user permanently? This cannot be undone.');">
-                                                <input type="hidden" name="action" value="delete_user">
-                                                <input type="hidden" name="user_id" value="<?= (int)$user['id'] ?>">
-                                                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                                <button type="submit" class="text-red-600 hover:text-red-800">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        <?php else: ?>
-                                            <span class="text-gray-400 cursor-not-allowed" title="Delete not allowed">Delete</span>
-                                        <?php endif; ?>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                                        <!-- Orders -->
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-semibold text-gray-900"><?= $user['total_orders'] ?: 0 ?> orders</div>
+                                            <div class="text-xs text-gray-500"><?= $user['total_reservations'] ?: 0 ?> reservations</div>
+                                        </td>
+
+                                        <!-- Total Spent -->
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm font-bold text-gray-900">$<?= number_format($user['total_spent'] ?: 0, 2) ?></div>
+                                            <div class="text-xs text-gray-500">lifetime value</div>
+                                        </td>
+
+                                        <!-- Status -->
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                ✓ Active
+                                            </span>
+                                        </td>
+
+                                        <!-- Actions -->
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center gap-2">
+                                                <a href="users.php?view=<?= (int)$user['id'] ?>" 
+                                                   class="bg-gradient-to-r from-brand-yellow to-brand-amber text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                                                    👁 View Details
+                                                </a>
+
+                                                <?php if (canDeleteUserRow($user)): ?>
+                                                    <form method="post" action="users.php" class="inline" 
+                                                          onsubmit="return confirm('Delete this user permanently? This cannot be undone.');">
+                                                        <input type="hidden" name="action" value="delete_user">
+                                                        <input type="hidden" name="user_id" value="<?= (int)$user['id'] ?>">
+                                                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+                                                        <button type="submit" 
+                                                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-300">
+                                                            🗑 Delete
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <span class="bg-gray-300 text-gray-500 px-3 py-1.5 rounded-lg text-xs cursor-not-allowed" title="Delete not allowed">
+                                                        🗑 Delete
+                                                    </span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
 
     <!-- User Modal (View or Edit) -->
     <?php if ($user_details): ?>
-        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="user-modal">
-            <div class="relative top-10 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-2/3 shadow-lg rounded-md bg-white">
-                <div class="mt-3">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-medium text-gray-900">
-                            <?= $edit_mode ? 'Edit User: ' : 'User Details: ' ?>
-                            <?= htmlspecialchars($user_details['full_name']) ?>
-                        </h3>
+        <div class="fixed inset-0 bg-black bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4" id="user-modal">
+            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div class="sticky top-0 bg-gradient-to-r from-brand-yellow to-brand-amber px-6 py-4 rounded-t-2xl">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-white">
+                                    <?= $edit_mode ? 'Edit User' : 'User Details' ?>
+                                </h3>
+                                <p class="text-white/80 text-sm"><?= htmlspecialchars($user_details['full_name']) ?></p>
+                            </div>
+                        </div>
                         <div class="flex items-center gap-3">
                             <?php if (!$edit_mode): ?>
-                                <a href="users.php?edit=<?= (int)$user_details['id'] ?>" class="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700">
-                                    Edit
+                                <a href="users.php?edit=<?= (int)$user_details['id'] ?>" 
+                                   class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+                                    ✏️ Edit
                                 </a>
                                 <?php if (canDeleteUserRow($user_details)): ?>
-                                    <form method="post" action="users.php" onsubmit="return confirm('Delete this user permanently? This cannot be undone.');">
+                                    <form method="post" action="users.php" class="inline" 
+                                          onsubmit="return confirm('Delete this user permanently? This cannot be undone.');">
                                         <input type="hidden" name="action" value="delete_user">
                                         <input type="hidden" name="user_id" value="<?= (int)$user_details['id'] ?>">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
-                                        <button type="submit" class="px-3 py-1.5 text-sm rounded bg-red-600 text-white hover:bg-red-700">
-                                            Delete
+                                        <button type="submit" 
+                                                class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300">
+                                            🗑️ Delete
                                         </button>
                                     </form>
                                 <?php endif; ?>
                             <?php endif; ?>
-                            <a href="users.php" class="text-gray-400 hover:text-gray-600" title="Close">
+                            <a href="users.php" class="text-white/80 hover:text-white" title="Close">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
                             </a>
                         </div>
                     </div>
+                </div>
 
+                <div class="p-6">
                     <?php if ($edit_mode): ?>
                         <!-- Edit Form -->
-                        <form method="post" action="users.php" class="space-y-4">
+                        <form method="post" action="users.php" class="space-y-6">
                             <input type="hidden" name="action" value="update_user">
                             <input type="hidden" name="user_id" value="<?= (int)$user_details['id'] ?>">
                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
-                            <div class="grid md:grid-cols-2 gap-4">
+                            <div class="grid md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Full Name</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
                                     <input type="text" name="full_name" value="<?= htmlspecialchars($user_details['full_name']) ?>"
-                                           class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500">
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-transparent">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Username</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Username</label>
                                     <input type="text" name="username" value="<?= htmlspecialchars($user_details['username'] ?? '') ?>"
-                                           class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500">
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-transparent">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Email</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
                                     <input type="email" name="email" value="<?= htmlspecialchars($user_details['email']) ?>"
-                                           class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500">
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-transparent">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Phone</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Phone</label>
                                     <input type="text" name="phone" value="<?= htmlspecialchars($user_details['phone'] ?? '') ?>"
-                                           class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500">
+                                           class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-transparent">
                                 </div>
                                 <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700">Address</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Address</label>
                                     <textarea name="address" rows="3"
-                                              class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500"><?= htmlspecialchars($user_details['address'] ?? '') ?></textarea>
+                                              class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-transparent"><?= htmlspecialchars($user_details['address'] ?? '') ?></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700">Role</label>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Role</label>
                                     <?php $allow_role_edit = canEditRoleOf($user_details); ?>
                                     <select name="role"
-                                            class="mt-1 block w-full rounded-md border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-yellow focus:border-transparent"
                                             <?= $allow_role_edit ? '' : 'disabled' ?>>
                                         <?php
                                             $role_val = strtolower($user_details['role']);
@@ -450,62 +673,115 @@ if (isset($_GET['view']) || isset($_GET['edit'])) {
                                 </div>
                             </div>
 
-                            <div class="flex items-center justify-end gap-3 pt-2">
-                                <a href="users.php?view=<?= (int)$user_details['id'] ?>" class="px-4 py-2 rounded border text-gray-700 hover:bg-gray-50">Cancel</a>
-                                <button type="submit" class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700">Save Changes</button>
+                            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+                                <a href="users.php?view=<?= (int)$user_details['id'] ?>" 
+                                   class="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-all duration-300">
+                                    Cancel
+                                </a>
+                                <button type="submit" 
+                                        class="bg-gradient-to-r from-brand-yellow to-brand-amber text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                                    💾 Save Changes
+                                </button>
                             </div>
                         </form>
                     <?php else: ?>
                         <!-- View Mode -->
-                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <div class="grid md:grid-cols-2 gap-8 mb-8">
                             <!-- User Information -->
-                            <div class="bg-gray-50 rounded-lg p-4">
-                                <h4 class="font-semibold text-gray-800 mb-3">Personal Information</h4>
-                                <div class="space-y-2 text-sm">
-                                    <p><strong>Username:</strong> <?= htmlspecialchars($user_details['username'] ?? '') ?></p>
-                                    <p><strong>Email:</strong> <?= htmlspecialchars($user_details['email']) ?></p>
-                                    <p><strong>Phone:</strong> <?= htmlspecialchars($user_details['phone'] ?: 'Not provided') ?></p>
-                                    <p><strong>Role:</strong> <?= ucfirst($user_details['role']) ?></p>
-                                    <p><strong>Joined:</strong> <?= date('M j, Y g:i A', strtotime($user_details['created_at'])) ?></p>
+                            <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6">
+                                <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                    </svg>
+                                    Personal Information
+                                </h4>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-medium text-gray-600">Username:</span>
+                                        <span class="text-sm text-gray-900"><?= htmlspecialchars($user_details['username'] ?? 'N/A') ?></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-medium text-gray-600">Email:</span>
+                                        <span class="text-sm text-gray-900"><?= htmlspecialchars($user_details['email']) ?></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-medium text-gray-600">Phone:</span>
+                                        <span class="text-sm text-gray-900"><?= htmlspecialchars($user_details['phone'] ?: 'Not provided') ?></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-medium text-gray-600">Role:</span>
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
+                                            <?= $user_details['role'] === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800' ?>">
+                                            <?= $user_details['role'] === 'admin' ? '👑 Admin' : '👤 Customer' ?>
+                                        </span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-sm font-medium text-gray-600">Joined:</span>
+                                        <span class="text-sm text-gray-900"><?= date('M j, Y g:i A', strtotime($user_details['created_at'])) ?></span>
+                                    </div>
                                 </div>
                                 <?php if (!empty($user_details['address'])): ?>
-                                    <div class="mt-3">
-                                        <strong class="text-sm">Address:</strong>
-                                        <p class="text-sm text-gray-600 mt-1"><?= nl2br(htmlspecialchars($user_details['address'])) ?></p>
+                                    <div class="mt-4 pt-4 border-t border-gray-200">
+                                        <span class="text-sm font-medium text-gray-600">Address:</span>
+                                        <p class="text-sm text-gray-900 mt-1"><?= nl2br(htmlspecialchars($user_details['address'])) ?></p>
                                     </div>
                                 <?php endif; ?>
                             </div>
 
                             <!-- Statistics -->
                             <div class="space-y-4">
-                                <div class="bg-blue-50 rounded-lg p-4">
-                                    <h5 class="font-semibold text-blue-800">Orders</h5>
-                                    <p class="text-2xl font-bold text-blue-600"><?= count($user_orders ?? []) ?></p>
+                                <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h5 class="font-semibold text-blue-800">Total Orders</h5>
+                                            <p class="text-3xl font-bold text-blue-600"><?= count($user_orders ?? []) ?></p>
+                                        </div>
+                                        <svg class="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                        </svg>
+                                    </div>
                                 </div>
-                                <div class="bg-green-50 rounded-lg p-4">
-                                    <h5 class="font-semibold text-green-800">Reservations</h5>
-                                    <p class="text-2xl font-bold text-green-600"><?= count($user_reservations ?? []) ?></p>
+                                <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h5 class="font-semibold text-green-800">Reservations</h5>
+                                            <p class="text-3xl font-bold text-green-600"><?= count($user_reservations ?? []) ?></p>
+                                        </div>
+                                        <svg class="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                                        </svg>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="grid md:grid-cols-2 gap-6">
+                        <div class="grid md:grid-cols-2 gap-8">
                             <!-- Recent Orders -->
                             <div>
-                                <h4 class="font-semibold text-gray-800 mb-3">Recent Orders</h4>
+                                <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                    </svg>
+                                    Recent Orders
+                                </h4>
                                 <?php if (empty($user_orders)): ?>
-                                    <p class="text-gray-500 text-sm">No orders found</p>
+                                    <div class="text-center py-8 bg-gray-50 rounded-xl">
+                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                                        </svg>
+                                        <p class="text-gray-500 text-sm">No orders found</p>
+                                    </div>
                                 <?php else: ?>
-                                    <div class="space-y-2">
+                                    <div class="space-y-3">
                                         <?php foreach ($user_orders as $order): ?>
-                                            <div class="bg-white border rounded-lg p-3">
-                                                <div class="flex justify-between items-center">
-                                                    <span class="text-sm font-medium">Order #<?= (int)$order['id'] ?></span>
-                                                    <span class="text-sm text-gray-500">$<?= number_format((float)$order['total_amount'], 2) ?></span>
+                                            <div class="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-300">
+                                                <div class="flex justify-between items-start mb-2">
+                                                    <span class="font-semibold text-gray-900">Order #<?= (int)$order['id'] ?></span>
+                                                    <span class="font-bold text-brand-yellow">$<?= number_format((float)$order['total_amount'], 2) ?></span>
                                                 </div>
-                                                <div class="flex justify-between items-center mt-1">
-                                                    <span class="text-xs text-gray-400"><?= date('M j, Y', strtotime($order['created_at'])) ?></span>
-                                                    <span class="px-2 py-1 text-xs rounded-full
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-xs text-gray-500"><?= date('M j, Y g:i A', strtotime($order['created_at'])) ?></span>
+                                                    <span class="px-2 py-1 text-xs rounded-full font-medium
                                                         <?php
                                                         $status_colors = [
                                                             'pending' => 'bg-yellow-100 text-yellow-800',
@@ -528,20 +804,30 @@ if (isset($_GET['view']) || isset($_GET['edit'])) {
 
                             <!-- Recent Reservations -->
                             <div>
-                                <h4 class="font-semibold text-gray-800 mb-3">Recent Reservations</h4>
+                                <h4 class="font-bold text-gray-800 mb-4 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                                    </svg>
+                                    Recent Reservations
+                                </h4>
                                 <?php if (empty($user_reservations)): ?>
-                                    <p class="text-gray-500 text-sm">No reservations found</p>
+                                    <div class="text-center py-8 bg-gray-50 rounded-xl">
+                                        <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                                        </svg>
+                                        <p class="text-gray-500 text-sm">No reservations found</p>
+                                    </div>
                                 <?php else: ?>
-                                    <div class="space-y-2">
+                                    <div class="space-y-3">
                                         <?php foreach ($user_reservations as $reservation): ?>
-                                            <div class="bg-white border rounded-lg p-3">
-                                                <div class="flex justify-between items-center">
-                                                    <span class="text-sm font-medium"><?= date('M j, Y', strtotime($reservation['date'])) ?></span>
-                                                    <span class="text-sm text-gray-500"><?= (int)$reservation['guests'] ?> guests</span>
+                                            <div class="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-all duration-300">
+                                                <div class="flex justify-between items-start mb-2">
+                                                    <span class="font-semibold text-gray-900"><?= date('M j, Y', strtotime($reservation['date'])) ?></span>
+                                                    <span class="font-bold text-brand-yellow"><?= (int)$reservation['guests'] ?> guests</span>
                                                 </div>
-                                                <div class="flex justify-between items-center mt-1">
-                                                    <span class="text-xs text-gray-400"><?= date('g:i A', strtotime($reservation['time'])) ?></span>
-                                                    <span class="px-2 py-1 text-xs rounded-full
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-xs text-gray-500"><?= date('g:i A', strtotime($reservation['time'])) ?></span>
+                                                    <span class="px-2 py-1 text-xs rounded-full font-medium
                                                         <?php
                                                         $status_colors = [
                                                             'pending' => 'bg-yellow-100 text-yellow-800',
@@ -560,10 +846,31 @@ if (isset($_GET['view']) || isset($_GET['edit'])) {
                             </div>
                         </div>
                     <?php endif; ?>
-
                 </div>
             </div>
         </div>
     <?php endif; ?>
+
+    <script>
+        // Enhanced modal handling
+        document.addEventListener('DOMContentLoaded', function() {
+            // Close modal on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && document.getElementById('user-modal')) {
+                    window.location.href = 'users.php';
+                }
+            });
+
+            // Close modal on background click
+            const modal = document.getElementById('user-modal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        window.location.href = 'users.php';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

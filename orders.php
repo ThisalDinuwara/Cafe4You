@@ -48,7 +48,8 @@ if (isset($_GET['order_id'])) {
             theme: {
                 extend: {
                     colors: {
-                        'brand-orange': '#FF6B35',
+                        'brand-yellow': '#FCD34D',
+                        'brand-amber': '#F59E0B',
                         'brand-cream': '#FFF8F0',
                         'brand-brown': '#8B4513',
                         'brand-gray': '#F5F5F5'
@@ -77,7 +78,7 @@ if (isset($_GET['order_id'])) {
         }
         
         .hero-pattern {
-            background-image: radial-gradient(circle at 1px 1px, rgba(255, 107, 53, 0.15) 1px, transparent 0);
+            background-image: radial-gradient(circle at 1px 1px, rgba(252, 211, 77, 0.15) 1px, transparent 0);
             background-size: 20px 20px;
         }
         
@@ -101,27 +102,27 @@ if (isset($_GET['order_id'])) {
 </head>
 <body class="bg-brand-cream font-body">
     <!-- Navigation -->
-    <nav class="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-orange-100">
+    <nav class="bg-white/80 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-yellow-100">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-brand-orange to-red-500 rounded-xl flex items-center justify-center">
+                    <div class="w-12 h-12 bg-gradient-to-br from-brand-yellow to-brand-amber rounded-xl flex items-center justify-center">
                         <span class="text-white font-bold text-xl">C</span>
                     </div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-brand-orange to-red-500 bg-clip-text text-transparent">Cafe For You</h1>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-brand-yellow to-brand-amber bg-clip-text text-transparent">Cafe For You</h1>
                 </div>
                 
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="index.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Home</a>
-                    <a href="menu.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Menu</a>
-                    <a href="reservations.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Reservations</a>
-                    <a href="contact.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Contact</a>
-                    <a href="cart.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Cart</a>
-                    <a href="orders.php" class="text-brand-orange font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-brand-orange">Orders</a>
+                    <a href="index.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Home</a>
+                    <a href="menu.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Menu</a>
+                    <a href="reservations.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Reservations</a>
+                    <a href="contact.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Contact</a>
+                    <a href="cart.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Cart</a>
+                    <a href="orders.php" class="text-brand-yellow font-semibold relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-brand-yellow">Orders</a>
                     <?php if (isAdmin()): ?>
-                        <a href="admin/dashboard.php" class="text-gray-700 hover:text-brand-orange transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-orange after:transition-all after:duration-300 hover:after:w-full">Admin</a>
+                        <a href="admin/dashboard.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Admin</a>
                     <?php endif; ?>
-                    <a href="logout.php" class="bg-gradient-to-r from-brand-orange to-red-500 text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">Logout</a>
+                    <a href="logout.php" class="bg-gradient-to-r from-brand-yellow to-brand-amber text-white px-6 py-2.5 rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">Logout</a>
                 </div>
 
                 <!-- Mobile menu button -->
@@ -135,10 +136,10 @@ if (isset($_GET['order_id'])) {
     </nav>
 
     <!-- Page Header -->
-    <section class="relative bg-gradient-to-br from-brand-orange via-red-500 to-red-600 text-white py-16 overflow-hidden">
+    <section class="relative bg-gradient-to-br from-brand-yellow via-brand-amber to-yellow-600 text-white py-16 overflow-hidden">
         <div class="hero-pattern absolute inset-0 opacity-20"></div>
         <div class="absolute top-10 left-10 w-6 h-6 bg-white/20 rounded-full animate-bounce"></div>
-        <div class="absolute top-32 right-20 w-4 h-4 bg-yellow-400/30 rounded-full"></div>
+        <div class="absolute top-32 right-20 w-4 h-4 bg-yellow-300/30 rounded-full"></div>
         <div class="absolute bottom-20 left-1/4 w-3 h-3 bg-white/30 rounded-full"></div>
         
         <div class="max-w-7xl mx-auto px-6 relative z-10">
@@ -149,7 +150,7 @@ if (isset($_GET['order_id'])) {
                     </svg>
                     <span>Order History</span>
                 </div>
-                <h1 class="text-5xl lg:text-6xl font-bold mb-4">Your <span class="text-yellow-300">Orders</span></h1>
+                <h1 class="text-5xl lg:text-6xl font-bold mb-4">Your <span class="text-yellow-200">Orders</span></h1>
                 <p class="text-xl text-white/90 leading-relaxed max-w-2xl mx-auto">
                     Track your delicious orders and explore your dining journey with us
                 </p>
@@ -166,14 +167,14 @@ if (isset($_GET['order_id'])) {
                 <!-- Empty Orders State -->
                 <div class="text-center py-20">
                     <div class="bg-white rounded-3xl card-shadow p-12 max-w-md mx-auto hover-lift">
-                        <div class="w-20 h-20 bg-gradient-to-br from-brand-orange/20 to-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <svg class="w-10 h-10 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-20 h-20 bg-gradient-to-br from-brand-yellow/20 to-brand-amber/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg class="w-10 h-10 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
                             </svg>
                         </div>
                         <h3 class="text-2xl font-bold text-gray-800 mb-3">No orders found</h3>
                         <p class="text-gray-600 mb-6">Start your culinary journey by placing your first order</p>
-                        <a href="menu.php" class="bg-gradient-to-r from-brand-orange to-red-500 text-white px-8 py-3 rounded-2xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 inline-flex items-center space-x-2">
+                        <a href="menu.php" class="bg-gradient-to-r from-brand-yellow to-brand-amber text-white px-8 py-3 rounded-2xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300 inline-flex items-center space-x-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                             </svg>
@@ -194,7 +195,7 @@ if (isset($_GET['order_id'])) {
                             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
                                 <!-- Order Info -->
                                 <div class="flex items-center space-x-4">
-                                    <div class="w-16 h-16 bg-gradient-to-br from-brand-orange to-red-500 rounded-2xl flex items-center justify-center flex-shrink-0">
+                                    <div class="w-16 h-16 bg-gradient-to-br from-brand-yellow to-brand-amber rounded-2xl flex items-center justify-center flex-shrink-0">
                                         <span class="text-white font-bold text-lg">#<?= $order['id'] ?></span>
                                     </div>
                                     
@@ -231,7 +232,7 @@ if (isset($_GET['order_id'])) {
                                             <span><?= ucfirst($order['status']) ?></span>
                                         </div>
                                         
-                                        <a href="orders.php?order_id=<?= $order['id'] ?>" class="bg-brand-orange text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-red-500 transition-all duration-300 flex items-center space-x-2">
+                                        <a href="orders.php?order_id=<?= $order['id'] ?>" class="bg-brand-yellow text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-brand-amber transition-all duration-300 flex items-center space-x-2">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
@@ -254,7 +255,7 @@ if (isset($_GET['order_id'])) {
             <div class="flex items-center justify-center min-h-screen p-4">
                 <div class="relative w-full max-w-2xl bg-white rounded-3xl card-shadow">
                     <!-- Modal Header -->
-                    <div class="flex items-center justify-between p-6 border-b border-gray-200 rounded-t-3xl bg-gradient-to-r from-brand-orange to-red-500 text-white">
+                    <div class="flex items-center justify-between p-6 border-b border-gray-200 rounded-t-3xl bg-gradient-to-r from-brand-yellow to-brand-amber text-white">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center">
                                 <span class="font-bold">#<?= $order_details[0]['id'] ?></span>
@@ -277,7 +278,7 @@ if (isset($_GET['order_id'])) {
                         <div class="grid md:grid-cols-2 gap-6 mb-6">
                             <div class="space-y-3">
                                 <h4 class="font-semibold text-gray-800 flex items-center space-x-2">
-                                    <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     <span>Order Information</span>
@@ -285,7 +286,7 @@ if (isset($_GET['order_id'])) {
                                 <div class="bg-gray-50 rounded-xl p-4 space-y-2">
                                     <div class="flex justify-between">
                                         <span class="text-gray-600">Status:</span>
-                                        <span class="font-semibold text-brand-orange"><?= ucfirst($order_details[0]['status']) ?></span>
+                                        <span class="font-semibold text-brand-yellow"><?= ucfirst($order_details[0]['status']) ?></span>
                                     </div>
                                     <div class="flex justify-between">
                                         <span class="text-gray-600">Total:</span>
@@ -296,7 +297,7 @@ if (isset($_GET['order_id'])) {
                             
                             <div class="space-y-3">
                                 <h4 class="font-semibold text-gray-800 flex items-center space-x-2">
-                                    <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                     </svg>
@@ -318,7 +319,7 @@ if (isset($_GET['order_id'])) {
                         <?php if ($order_details[0]['special_instructions']): ?>
                             <div class="mb-6">
                                 <h4 class="font-semibold text-gray-800 mb-2 flex items-center space-x-2">
-                                    <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
                                     </svg>
                                     <span>Special Instructions</span>
@@ -332,7 +333,7 @@ if (isset($_GET['order_id'])) {
                         <!-- Order Items -->
                         <div class="border-t border-gray-200 pt-6">
                             <h4 class="font-semibold text-gray-800 mb-4 flex items-center space-x-2">
-                                <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                                 </svg>
                                 <span>Order Items</span>
@@ -341,7 +342,7 @@ if (isset($_GET['order_id'])) {
                                 <?php foreach ($order_details as $item): ?>
                                     <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-10 h-10 bg-gradient-to-br from-brand-orange to-red-500 rounded-xl flex items-center justify-center">
+                                            <div class="w-10 h-10 bg-gradient-to-br from-brand-yellow to-brand-amber rounded-xl flex items-center justify-center">
                                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"></path>
                                                 </svg>
@@ -357,9 +358,9 @@ if (isset($_GET['order_id'])) {
                             </div>
                             
                             <div class="border-t border-gray-200 mt-4 pt-4">
-                                <div class="flex justify-between items-center p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border-2 border-brand-orange/20">
+                                <div class="flex justify-between items-center p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border-2 border-brand-yellow/20">
                                     <span class="text-lg font-bold text-gray-800">Total Amount</span>
-                                    <span class="text-2xl font-bold text-brand-orange">$<?= number_format($order_details[0]['total_amount'], 2) ?></span>
+                                    <span class="text-2xl font-bold text-brand-yellow">$<?= number_format($order_details[0]['total_amount'], 2) ?></span>
                                 </div>
                             </div>
                         </div>
@@ -377,7 +378,7 @@ if (isset($_GET['order_id'])) {
                     <h4 class="text-lg font-semibold">Contact Info</h4>
                     <ul class="space-y-3 text-gray-400">
                         <li class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
@@ -387,13 +388,13 @@ if (isset($_GET['order_id'])) {
                             <span class="ml-8">City, State 12345</span>
                         </li>
                         <li class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                             </svg>
                             <span>(555) 123-4567</span>
                         </li>
                         <li class="flex items-center space-x-3">
-                            <svg class="w-5 h-5 text-brand-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                             </svg>
                             <span>info@cafeforyou.com</span>
