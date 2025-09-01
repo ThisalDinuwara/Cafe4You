@@ -8,55 +8,116 @@ $database = new Database();
 $db = $database->getConnection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = sanitize($_POST['name']);
-    $email = sanitize($_POST['email']);
-    $phone = sanitize($_POST['phone']);
-    $date = sanitize($_POST['date']);
-    $time = sanitize($_POST['time']);
-    $guests = (int)$_POST['guests'];
-    $message = sanitize($_POST['message']);
-    $user_id = isLoggedIn() ? $_SESSION['user_id'] : null;
-    
-    $errors = [];
-    
-    if (empty($name)) $errors[] = 'Name is required';
-    if (empty($email)) $errors[] = 'Email is required';
-    if (empty($phone)) $errors[] = 'Phone is required';
-    if (empty($date)) $errors[] = 'Date is required';
-    if (empty($time)) $errors[] = 'Time is required';
-    if ($guests < 1 || $guests > 20) $errors[] = 'Number of guests must be between 1 and 20';
-    
-    // Check if date is not in the past
-    if (strtotime($date) < strtotime(date('Y-m-d'))) {
-        $errors[] = 'Reservation date cannot be in the past';
-    }
-    
-    if (empty($errors)) {
-        $query = "INSERT INTO reservations (user_id, name, email, phone, date, time, guests, message) 
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $db->prepare($query);
+    // Handle status update
+    if (isset($_POST['action']) && $_POST['action'] === 'cancel_reservation') {
+        $reservation_id = (int)$_POST['reservation_id'];
+        $user_id = $_SESSION['user_id'];
         
-        if ($stmt->execute([$user_id, $name, $email, $phone, $date, $time, $guests, $message])) {
-            showMessage('Reservation request submitted successfully! We will contact you shortly to confirm.');
-            // Clear form data
-            $_POST = [];
+        // Verify the reservation belongs to the current user
+        $verify_query = "SELECT id FROM reservations WHERE id = ? AND user_id = ? AND status != 'cancelled'";
+        $verify_stmt = $db->prepare($verify_query);
+        $verify_stmt->execute([$reservation_id, $user_id]);
+        
+        if ($verify_stmt->fetch()) {
+            $cancel_query = "UPDATE reservations SET status = 'cancelled', updated_at = NOW() WHERE id = ? AND user_id = ?";
+            $cancel_stmt = $db->prepare($cancel_query);
+            if ($cancel_stmt->execute([$reservation_id, $user_id])) {
+                showMessage('Reservation cancelled successfully.');
+            } else {
+                showMessage('Failed to cancel reservation. Please try again.', 'error');
+            }
         } else {
-            $errors[] = 'Failed to submit reservation. Please try again.';
+            showMessage('Invalid reservation or already cancelled.', 'error');
         }
-    }
-    
-    if (!empty($errors)) {
-        showMessage(implode('<br>', $errors), 'error');
+    } else {
+        // Handle new reservation
+        $name = sanitize($_POST['name']);
+        $email = sanitize($_POST['email']);
+        $phone = sanitize($_POST['phone']);
+        $date = sanitize($_POST['date']);
+        $time = sanitize($_POST['time']);
+        $guests = (int)$_POST['guests'];
+        $message = sanitize($_POST['message']);
+        $user_id = isLoggedIn() ? $_SESSION['user_id'] : null;
+        
+        $errors = [];
+        
+        if (empty($name)) $errors[] = 'Name is required';
+        if (empty($email)) $errors[] = 'Email is required';
+        if (empty($phone)) $errors[] = 'Phone is required';
+        if (empty($date)) $errors[] = 'Date is required';
+        if (empty($time)) $errors[] = 'Time is required';
+        if ($guests < 1 || $guests > 20) $errors[] = 'Number of guests must be between 1 and 20';
+        
+        // Check if date is not in the past
+        if (strtotime($date) < strtotime(date('Y-m-d'))) {
+            $errors[] = 'Reservation date cannot be in the past';
+        }
+        
+        if (empty($errors)) {
+            $query = "INSERT INTO reservations (user_id, name, email, phone, date, time, guests, message, status, created_at) 
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())";
+            $stmt = $db->prepare($query);
+            
+            if ($stmt->execute([$user_id, $name, $email, $phone, $date, $time, $guests, $message])) {
+                showMessage('Reservation request submitted successfully! We will contact you shortly to confirm.');
+                // Clear form data
+                $_POST = [];
+            } else {
+                $errors[] = 'Failed to submit reservation. Please try again.';
+            }
+        }
+        
+        if (!empty($errors)) {
+            showMessage(implode('<br>', $errors), 'error');
+        }
     }
 }
 
 // Get user info if logged in
 $user = null;
+$user_reservations = [];
 if (isLoggedIn()) {
     $user_query = "SELECT * FROM users WHERE id = ?";
     $user_stmt = $db->prepare($user_query);
     $user_stmt->execute([$_SESSION['user_id']]);
     $user = $user_stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Get user's reservations
+    $reservations_query = "SELECT * FROM reservations WHERE user_id = ? ORDER BY date DESC, time DESC";
+    $reservations_stmt = $db->prepare($reservations_query);
+    $reservations_stmt->execute([$_SESSION['user_id']]);
+    $user_reservations = $reservations_stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getStatusColor($status) {
+    switch (strtolower($status)) {
+        case 'confirmed':
+            return 'bg-green-100 text-green-800 border-green-200';
+        case 'pending':
+            return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        case 'cancelled':
+            return 'bg-red-100 text-red-800 border-red-200';
+        case 'completed':
+            return 'bg-blue-100 text-blue-800 border-blue-200';
+        default:
+            return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+}
+
+function getStatusIcon($status) {
+    switch (strtolower($status)) {
+        case 'confirmed':
+            return '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+        case 'pending':
+            return '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+        case 'cancelled':
+            return '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+        case 'completed':
+            return '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+        default:
+            return '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+    }
 }
 ?>
 
@@ -133,6 +194,15 @@ if (isLoggedIn()) {
             .hero-bg {
                 background-attachment: scroll;
             }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -271,6 +341,136 @@ if (isLoggedIn()) {
         </div>
     </section>
 
+    <!-- My Reservations Section (Only show if user is logged in) -->
+    <?php if (isLoggedIn() && !empty($user_reservations)): ?>
+    <section class="py-16 bg-gradient-to-br from-yellow-50 to-amber-50">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">My Reservations</h2>
+                <p class="text-gray-600">Track and manage your reservation status</p>
+            </div>
+
+            <div class="grid gap-6">
+                <?php foreach ($user_reservations as $reservation): ?>
+                <div class="bg-white rounded-2xl card-shadow hover-lift fade-in">
+                    <div class="p-6">
+                        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                            <!-- Reservation Info -->
+                            <div class="flex-1">
+                                <div class="flex flex-wrap items-center gap-4 mb-4">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-2xl font-bold text-gray-800">#<?= $reservation['id'] ?></span>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="<?= getStatusColor($reservation['status']) ?> px-3 py-1 rounded-full text-xs font-semibold border flex items-center space-x-1">
+                                            <?= getStatusIcon($reservation['status']) ?>
+                                            <span><?= ucfirst($reservation['status']) ?></span>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-600">Date</div>
+                                            <div class="font-semibold"><?= date('M j, Y', strtotime($reservation['date'])) ?></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-600">Time</div>
+                                            <div class="font-semibold"><?= date('g:i A', strtotime($reservation['time'])) ?></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-600">Guests</div>
+                                            <div class="font-semibold"><?= $reservation['guests'] ?> <?= $reservation['guests'] == 1 ? 'Guest' : 'Guests' ?></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                                            <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-600">Created</div>
+                                            <div class="font-semibold"><?= date('M j', strtotime($reservation['created_at'])) ?></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <?php if (!empty($reservation['message'])): ?>
+                                <div class="mt-4 p-3 bg-gray-50 rounded-xl">
+                                    <div class="text-sm font-medium text-gray-600 mb-1">Special Requests:</div>
+                                    <div class="text-gray-800"><?= htmlspecialchars($reservation['message']) ?></div>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex flex-col space-y-2 lg:ml-6">
+                                <?php if (in_array(strtolower($reservation['status']), ['pending', 'confirmed'])): ?>
+                                    <?php 
+                                    $reservationDateTime = strtotime($reservation['date'] . ' ' . $reservation['time']);
+                                    $canCancel = $reservationDateTime > (time() + 2 * 3600); // Can cancel if more than 2 hours away
+                                    ?>
+                                    
+                                    <?php if ($canCancel): ?>
+                                    <form method="POST" onsubmit="return confirm('Are you sure you want to cancel this reservation?');">
+                                        <input type="hidden" name="action" value="cancel_reservation">
+                                        <input type="hidden" name="reservation_id" value="<?= $reservation['id'] ?>">
+                                        <button type="submit" class="w-full lg:w-auto px-4 py-2 border border-red-300 text-red-600 rounded-xl hover:bg-red-50 transition-colors duration-300 text-sm font-medium">
+                                            Cancel Reservation
+                                        </button>
+                                    </form>
+                                    <?php else: ?>
+                                    <div class="text-xs text-gray-500 text-center lg:text-left">
+                                        Cannot cancel<br>(less than 2hrs away)
+                                    </div>
+                                    <?php endif; ?>
+                                    
+                                    <a href="contact.php" class="w-full lg:w-auto px-4 py-2 bg-brand-yellow text-white rounded-xl hover:bg-brand-amber transition-colors duration-300 text-sm font-medium text-center">
+                                        Modify Request
+                                    </a>
+                                <?php elseif (strtolower($reservation['status']) === 'cancelled'): ?>
+                                    <div class="text-xs text-gray-500 text-center lg:text-left">
+                                        Reservation Cancelled
+                                    </div>
+                                <?php else: ?>
+                                    <div class="text-xs text-gray-500 text-center lg:text-left">
+                                        Reservation Completed
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
     <!-- Reservation Form -->
     <section class="py-20 bg-white">
         <div class="max-w-6xl mx-auto px-6">
@@ -281,7 +481,7 @@ if (isLoggedIn()) {
                 <div class="lg:col-span-2">
                     <div class="bg-white rounded-3xl card-shadow p-8 hover-lift">
                         <div class="mb-8">
-                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Reservation Details</h2>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Make a New Reservation</h2>
                             <p class="text-gray-600">Fill out the form below and we'll confirm your reservation within 24 hours.</p>
                         </div>
                         
@@ -559,7 +759,7 @@ if (isLoggedIn()) {
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                             </svg>
                             <span>(555) 123-4567</span>
-                        </li>
+                        </div>
                         <li class="flex items-center space-x-3">
                             <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -661,6 +861,16 @@ if (isLoggedIn()) {
                 input.addEventListener('blur', function() {
                     this.parentElement.classList.remove('focused');
                 });
+            });
+        });
+
+        // Auto-hide success messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.fade-in');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.style.opacity = '1';
+                }, 100);
             });
         });
     </script>
