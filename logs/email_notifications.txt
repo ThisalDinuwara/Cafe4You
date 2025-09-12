@@ -1,0 +1,392 @@
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: isharasathsaranih@gmail.com
+Subject: Order #13 Status Update - Cafe For You
+Date: 2025-09-10 04:24:14
+
+Hello Herath,
+
+Your order #13 status has been updated to: Confirmed
+
+Your order has been confirmed and will be prepared soon.
+
+Order Details:
+- Order Date: September 9, 2025 11:27 PM
+- Total Amount: Rs216.00
+- Delivery Address: Welagane,Maspotha
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: isharasathsaranih@gmail.com
+Subject: Order #13 Status Update - Cafe For You
+Date: 2025-09-10 04:28:14
+
+Hello Herath,
+
+Your order #13 status has been updated to: Confirmed
+
+Your order has been confirmed and will be prepared soon.
+
+Order Details:
+- Order Date: September 9, 2025 11:27 PM
+- Total Amount: Rs216.00
+- Delivery Address: Welagane,Maspotha
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: aaa@gmail.com
+Subject: Order #11 Status Update - Cafe For You
+Date: 2025-09-10 04:59:21
+
+Hello imashi chamodya,
+
+Your order #11 status has been updated to: Confirmed
+
+Your order has been confirmed and will be prepared soon.
+
+Order Details:
+- Order Date: September 3, 2025 11:38 AM
+- Total Amount: Rs270.00
+- Delivery Address: gfhghgfdf,hjghfg
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: isharasathsaranih@gmail.com
+Subject: Order #14 Status Update - Cafe For You
+Date: 2025-09-11 09:51:13
+
+Hello Herath,
+
+Your order #14 status has been updated to: Confirmed
+
+Your order has been confirmed and will be prepared soon.
+
+Order Details:
+- Order Date: September 11, 2025 3:20 PM
+- Total Amount: Rs432.00
+- Delivery Address: Welagane,Maspotha
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: isharasathsaranih@gmail.com
+Subject: Order #15 Status Update - Cafe For You
+Date: 2025-09-11 11:25:15
+
+Hello Herath,
+
+Your order #15 status has been updated to: Confirmed
+
+Your order has been confirmed and will be prepared soon.
+
+Order Details:
+- Order Date: September 11, 2025 4:54 PM
+- Total Amount: Rs216.00
+- Delivery Address: Welagane,Maspotha
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: admin@restaurant.com
+Subject: Order #7 Status Update - Cafe For You
+Date: 2025-09-11 13:09:45
+
+Hello Admin User,
+
+Your order #7 status has been updated to: Ready
+
+Your order is ready for pickup/delivery!
+
+Order Details:
+- Order Date: September 11, 2025 4:41 PM
+- Total Amount: Rs1,566.00
+- Delivery Address: hdfdm,gfsab,sbnhsdbnds,bbfbbnsf
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: admin@restaurant.com
+Subject: Order #7 Status Update - Cafe For You
+Date: 2025-09-11 13:11:07
+
+Hello Admin User,
+
+Your order #7 status has been updated to: Ready
+
+Your order is ready for pickup/delivery!
+
+Order Details:
+- Order Date: September 11, 2025 4:41 PM
+- Total Amount: Rs1,566.00
+- Delivery Address: hdfdm,gfsab,sbnhsdbnds,bbfbbnsf
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: ishi@gmail.com
+Subject: Order #6 Status Update - Cafe For You
+Date: 2025-09-11 13:11:18
+
+Hello Ishara Herath,
+
+Your order #6 status has been updated to: Ready
+
+Your order is ready for pickup/delivery!
+
+Order Details:
+- Order Date: August 30, 2025 11:01 AM
+- Total Amount: Rs26.99
+- Delivery Address: crh5yj,gbtb,bgrtybhr
+rhdssedesjntrfn
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+---------------- EMAIL LOG ----------------
+Time:    2025-09-11T13:31:49+00:00
+To:      admin@example.com
+From:    no-reply@cafeforyou.local
+Subject: [Orders] New Order #8
+Alt:
+New order #8
+
+Array
+(
+    [id] => 8
+    [user_id] => 3
+    [total_amount] => 1566.00
+    [status] => pending
+    [delivery_address] => crh5yj,gbtb,bgrtybhr
+rhdssedesjntrfn
+    [phone] => 0705815334
+    [special_instructions] => hbfndfn
+    [created_at] => 2025-09-11 19:01:49
+)
+
+
+HTML:
+<h2 style="font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;">New Order Received</h2><table cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #eee;width:100%;max-width:640px;">
+  <tbody>
+    <tr><td style="padding:6px 8px;border:1px solid #eee;"><b>id</b></td><td style="padding:6px 8px;border:1px solid #eee;">8</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>user_id</b></td><td style="padding:6px 8px;border:1px solid #eee;">3</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>total_amount</b></td><td style="padding:6px 8px;border:1px solid #eee;">1566.00</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>status</b></td><td style="padding:6px 8px;border:1px solid #eee;">pending</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>delivery_address</b></td><td style="padding:6px 8px;border:1px solid #eee;">crh5yj,gbtb,bgrtybhr
+rhdssedesjntrfn</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>phone</b></td><td style="padding:6px 8px;border:1px solid #eee;">0705815334</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>special_instructions</b></td><td style="padding:6px 8px;border:1px solid #eee;">hbfndfn</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>created_at</b></td><td style="padding:6px 8px;border:1px solid #eee;">2025-09-11 19:01:49</td></tr>
+  </tbody>
+</table>
+-------------------------------------------
+
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: tkandepola@gmail.com
+Subject: Order #8 Status Update - Cafe For You
+Date: 2025-09-11 14:52:05
+
+Hello Thisal Dinuwara,
+
+Your order #8 status has been updated to: Confirmed
+
+Your order has been confirmed and will be prepared soon.
+
+Order Details:
+- Order Date: September 11, 2025 7:01 PM
+- Total Amount: Rs1,566.00
+- Delivery Address: crh5yj,gbtb,bgrtybhr
+rhdssedesjntrfn
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: tkandepola@gmail.com
+Subject: Order #8 Status Update - Cafe For You
+Date: 2025-09-11 14:58:58
+
+Hello Thisal Dinuwara,
+
+Your order #8 status has been updated to: Confirmed
+
+Your order has been confirmed and will be prepared soon.
+
+Order Details:
+- Order Date: September 11, 2025 7:01 PM
+- Total Amount: Rs1,566.00
+- Delivery Address: crh5yj,gbtb,bgrtybhr
+rhdssedesjntrfn
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: tkandepola@gmail.com
+Subject: Order #8 Status Update - Cafe For You
+Date: 2025-09-11 14:59:08
+
+Hello Thisal Dinuwara,
+
+Your order #8 status has been updated to: Preparing
+
+Your order is currently being prepared by our kitchen staff.
+
+Order Details:
+- Order Date: September 11, 2025 7:01 PM
+- Total Amount: Rs1,566.00
+- Delivery Address: crh5yj,gbtb,bgrtybhr
+rhdssedesjntrfn
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: tkandepola@gmail.com
+Subject: Order #8 Status Update - Cafe For You
+Date: 2025-09-11 15:11:17
+
+Hello Thisal Dinuwara,
+
+Your order #8 status has been updated to: Preparing
+
+Your order is currently being prepared by our kitchen staff.
+
+Order Details:
+- Order Date: September 11, 2025 7:01 PM
+- Total Amount: Rs1,566.00
+- Delivery Address: crh5yj,gbtb,bgrtybhr
+rhdssedesjntrfn
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+---------------- EMAIL LOG ----------------
+Time:    2025-09-11T15:11:17+00:00
+To:      admin@example.com
+From:    no-reply@cafeforyou.local
+Subject: [Orders] Order #8 Status Changed (confirmed → preparing)
+Alt:
+Order #8 status changed from confirmed to preparing
+
+Array
+(
+    [id] => 8
+    [user_id] => 3
+    [total_amount] => 1566.00
+    [status] => preparing
+    [delivery_address] => crh5yj,gbtb,bgrtybhr
+rhdssedesjntrfn
+    [phone] => 0705815334
+    [special_instructions] => hbfndfn
+    [created_at] => 2025-09-11 19:01:49
+)
+
+
+HTML:
+<h2 style="font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;">Order Status Updated</h2><p>Order <b>#8</b> changed from <b>confirmed</b> to <b>preparing</b>.</p><table cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #eee;width:100%;max-width:640px;">
+  <tbody>
+    <tr><td style="padding:6px 8px;border:1px solid #eee;"><b>id</b></td><td style="padding:6px 8px;border:1px solid #eee;">8</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>user_id</b></td><td style="padding:6px 8px;border:1px solid #eee;">3</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>total_amount</b></td><td style="padding:6px 8px;border:1px solid #eee;">1566.00</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>status</b></td><td style="padding:6px 8px;border:1px solid #eee;">preparing</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>delivery_address</b></td><td style="padding:6px 8px;border:1px solid #eee;">crh5yj,gbtb,bgrtybhr
+rhdssedesjntrfn</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>phone</b></td><td style="padding:6px 8px;border:1px solid #eee;">0705815334</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>special_instructions</b></td><td style="padding:6px 8px;border:1px solid #eee;">hbfndfn</td></tr><tr><td style="padding:6px 8px;border:1px solid #eee;"><b>created_at</b></td><td style="padding:6px 8px;border:1px solid #eee;">2025-09-11 19:01:49</td></tr>
+  </tbody>
+</table>
+-------------------------------------------
+
+
+=============================================================
+EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: tkandepola@gmail.com
+Subject: Order #8 Status Update - Cafe For You
+Date: 2025-09-11 15:11:37
+
+Hello Thisal Dinuwara,
+
+Your order #8 status has been updated to: Preparing
+
+Your order is currently being prepared by our kitchen staff.
+
+Order Details:
+- Order Date: September 11, 2025 7:01 PM
+- Total Amount: Rs1,566.00
+- Delivery Address: crh5yj,gbtb,bgrtybhr
+rhdssedesjntrfn
+
+Thank you for choosing Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
