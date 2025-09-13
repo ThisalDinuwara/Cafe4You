@@ -1,11 +1,257 @@
 <?php
-// reservations.php
+// reservations.php - COMPLETE CORRECTED VERSION
 require_once 'config/database.php';
 require_once 'includes/auth.php';
 require_once 'includes/functions.php';
 
+// PHPMailer includes - CORRECTED PATHS
+require_once 'includes/phpmailer/src/Exception.php';
+require_once 'includes/phpmailer/src/PHPMailer.php';
+require_once 'includes/phpmailer/src/SMTP.php';
+
+// Email configuration - UPDATE THESE WITH YOUR ACTUAL CREDENTIALS
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_PORT', 587);
+define('SMTP_USERNAME', 'tkandepola@gmail.com'); // CHANGE THIS
+define('SMTP_PASSWORD', 'xpuo unfe kvvt dwat');    // CHANGE THIS  
+define('FROM_EMAIL', 'noreply@cafeforyou.com');
+define('FROM_NAME', 'Cafe For You');
+define('ADMIN_EMAIL', 'admin@cafeforyou.com');   // CHANGE THIS
+
 $database = new Database();
 $db = $database->getConnection();
+
+// Email sending function
+function sendReservationEmail($reservationData, $isConfirmation = true) {
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host       = SMTP_HOST;
+        $mail->SMTPAuth   = true;
+        $mail->Username   = SMTP_USERNAME;
+        $mail->Password   = SMTP_PASSWORD;
+        $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = SMTP_PORT;
+
+        // Recipients
+        $mail->setFrom(FROM_EMAIL, FROM_NAME);
+        $mail->addAddress($reservationData['email'], $reservationData['name']);
+        $mail->addReplyTo(FROM_EMAIL, FROM_NAME);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->CharSet = 'UTF-8';
+        
+        if ($isConfirmation) {
+            $mail->Subject = 'Reservation Confirmation - Cafe For You';
+            $mail->Body = getConfirmationEmailTemplate($reservationData);
+        } else {
+            $mail->Subject = 'New Reservation Request - Cafe For You';
+            $mail->Body = getAdminNotificationTemplate($reservationData);
+        }
+
+        $mail->send();
+        return true;
+    } catch (\PHPMailer\PHPMailer\Exception $e) {
+        error_log("Email sending failed: " . $mail->ErrorInfo);
+        return false;
+    }
+}
+
+// Customer confirmation email template
+function getConfirmationEmailTemplate($data) {
+    $reservationDate = date('l, F j, Y', strtotime($data['date']));
+    $reservationTime = date('g:i A', strtotime($data['time']));
+    
+    return "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+        <title>Reservation Confirmation</title>
+        <style>
+            body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background-color: #FFF8F0; }
+            .container { max-width: 600px; margin: 0 auto; background: white; }
+            .header { background: linear-gradient(135deg, #FCD34D, #F59E0B); color: white; text-align: center; padding: 40px 20px; }
+            .content { padding: 40px 30px; }
+            .reservation-details { background: #FFF8F0; border-left: 4px solid #FCD34D; padding: 20px; margin: 20px 0; }
+            .detail-row { display: flex; justify-content: space-between; margin: 10px 0; }
+            .label { font-weight: bold; color: #8B4513; }
+            .value { color: #374151; }
+            .footer { background: #374151; color: white; text-align: center; padding: 30px 20px; }
+            .btn { display: inline-block; background: #FCD34D; color: #374151; padding: 12px 30px; text-decoration: none; border-radius: 25px; font-weight: bold; margin: 20px 0; }
+            .policy { background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0; font-size: 14px; color: #6B7280; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1 style='margin: 0; font-size: 32px;'>Reservation Confirmed!</h1>
+                <p style='margin: 10px 0 0 0; font-size: 18px; opacity: 0.9;'>Thank you for choosing Cafe For You</p>
+            </div>
+            
+            <div class='content'>
+                <h2 style='color: #374151; margin-bottom: 20px;'>Hello " . htmlspecialchars($data['name']) . ",</h2>
+                
+                <p>We're excited to confirm your reservation at Cafe For You! Here are your reservation details:</p>
+                
+                <div class='reservation-details'>
+                    <h3 style='margin-top: 0; color: #8B4513;'>Reservation Details</h3>
+                    <div class='detail-row'>
+                        <span class='label'>Reservation ID:</span>
+                        <span class='value'>#" . $data['reservation_id'] . "</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='label'>Date:</span>
+                        <span class='value'>{$reservationDate}</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='label'>Time:</span>
+                        <span class='value'>{$reservationTime}</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='label'>Table:</span>
+                        <span class='value'>Table " . $data['table_number'] . "</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='label'>Guests:</span>
+                        <span class='value'>" . $data['guests'] . " " . ($data['guests'] == 1 ? 'Guest' : 'Guests') . "</span>
+                    </div>
+                    <div class='detail-row'>
+                        <span class='label'>Phone:</span>
+                        <span class='value'>" . htmlspecialchars($data['phone']) . "</span>
+                    </div>" . 
+    (!empty($data['message']) ? "
+                    <div style='margin-top: 15px;'>
+                        <span class='label'>Special Requests:</span>
+                        <div style='margin-top: 5px; color: #374151;'>" . htmlspecialchars($data['message']) . "</div>
+                    </div>" : "") . "
+                </div>
+                
+                <div style='text-align: center;'>
+                    <a href='tel:+15551234567' class='btn'>Need Changes? Call Us</a>
+                </div>
+                
+                <div class='policy'>
+                    <h4 style='margin-top: 0; color: #374151;'>Important Information:</h4>
+                    <ul style='margin: 0; padding-left: 20px;'>
+                        <li>Please arrive within 15 minutes of your reservation time</li>
+                        <li>Cancellations must be made at least 2 hours in advance</li>
+                        <li>For modifications, please call us at (555) 123-4567</li>
+                        <li>We're located at 123 Restaurant Street, City, State 12345</li>
+                    </ul>
+                </div>
+                
+                <p style='text-align: center; margin-top: 30px;'>
+                    We look forward to serving you an exceptional dining experience!
+                </p>
+            </div>
+            
+            <div class='footer'>
+                <h3 style='margin: 0 0 10px 0;'>Cafe For You</h3>
+                <p style='margin: 0; opacity: 0.8;'>123 Restaurant Street, City, State 12345</p>
+                <p style='margin: 5px 0 0 0; opacity: 0.8;'>Phone: (555) 123-4567 | Email: info@cafeforyou.com</p>
+            </div>
+        </div>
+    </body>
+    </html>";
+}
+
+// Admin notification email template
+function getAdminNotificationTemplate($data) {
+    $reservationDate = date('l, F j, Y', strtotime($data['date']));
+    $reservationTime = date('g:i A', strtotime($data['time']));
+    
+    return "
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset='UTF-8'>
+        <title>New Reservation Alert</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+            .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; }
+            .header { background: #dc2626; color: white; text-align: center; padding: 20px; border-radius: 8px 8px 0 0; }
+            .content { padding: 30px; }
+            .alert-box { background: #fef2f2; border-left: 4px solid #dc2626; padding: 15px; margin: 20px 0; }
+            .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+            .detail-item { background: #f9fafb; padding: 15px; border-radius: 5px; }
+            .label { font-weight: bold; color: #374151; }
+            .value { color: #6b7280; margin-top: 5px; }
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='header'>
+                <h1 style='margin: 0;'>New Reservation Alert</h1>
+                <p style='margin: 5px 0 0 0;'>Immediate action required</p>
+            </div>
+            
+            <div class='content'>
+                <div class='alert-box'>
+                    <h3 style='margin-top: 0; color: #dc2626;'>New reservation received and needs confirmation!</h3>
+                    <p>A new reservation has been submitted through the website. Please review and confirm within 24 hours.</p>
+                </div>
+                
+                <h2>Customer Information:</h2>
+                <div class='detail-grid'>
+                    <div class='detail-item'>
+                        <div class='label'>Name</div>
+                        <div class='value'>" . htmlspecialchars($data['name']) . "</div>
+                    </div>
+                    <div class='detail-item'>
+                        <div class='label'>Email</div>
+                        <div class='value'>" . htmlspecialchars($data['email']) . "</div>
+                    </div>
+                    <div class='detail-item'>
+                        <div class='label'>Phone</div>
+                        <div class='value'>" . htmlspecialchars($data['phone']) . "</div>
+                    </div>
+                    <div class='detail-item'>
+                        <div class='label'>Guests</div>
+                        <div class='value'>" . $data['guests'] . " " . ($data['guests'] == 1 ? 'Guest' : 'Guests') . "</div>
+                    </div>
+                </div>
+                
+                <h2>Reservation Details:</h2>
+                <div class='detail-grid'>
+                    <div class='detail-item'>
+                        <div class='label'>Date</div>
+                        <div class='value'>{$reservationDate}</div>
+                    </div>
+                    <div class='detail-item'>
+                        <div class='label'>Time</div>
+                        <div class='value'>{$reservationTime}</div>
+                    </div>
+                    <div class='detail-item'>
+                        <div class='label'>Table</div>
+                        <div class='value'>Table " . $data['table_number'] . "</div>
+                    </div>
+                    <div class='detail-item'>
+                        <div class='label'>Reservation ID</div>
+                        <div class='value'>#" . $data['reservation_id'] . "</div>
+                    </div>
+                </div>" .
+    (!empty($data['message']) ? "
+                <h2>Special Requests:</h2>
+                <div class='alert-box'>
+                    <p>" . htmlspecialchars($data['message']) . "</p>
+                </div>" : "") . "
+                
+                <div style='text-align: center; margin-top: 30px; padding: 20px; background: #f3f4f6; border-radius: 5px;'>
+                    <p><strong>Next Steps:</strong></p>
+                    <p>1. Check table availability conflicts<br>
+                    2. Call customer to confirm: " . htmlspecialchars($data['phone']) . "<br>
+                    3. Update reservation status in admin panel</p>
+                </div>
+            </div>
+        </div>
+    </body>
+    </html>";
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle status update
@@ -77,7 +323,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $db->prepare($query);
             
             if ($stmt->execute([$user_id, $name, $email, $phone, $date, $time, $table_number, $guests, $message])) {
-                showMessage('Reservation request submitted successfully! We will contact you shortly to confirm.');
+                // Get the newly inserted reservation ID
+                $reservation_id = $db->lastInsertId();
+                
+                // Prepare data for email
+                $emailData = [
+                    'reservation_id' => $reservation_id,
+                    'name' => $name,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'date' => $date,
+                    'time' => $time,
+                    'table_number' => $table_number,
+                    'guests' => $guests,
+                    'message' => $message
+                ];
+                
+                // Send confirmation email to customer
+                $customerEmailSent = sendReservationEmail($emailData, true);
+                
+                // Send notification email to admin (change email address)
+                $adminEmailData = $emailData;
+                $adminEmailData['email'] = ADMIN_EMAIL;
+                $adminEmailSent = sendReservationEmail($adminEmailData, false);
+                
+                // Show appropriate success message
+                if ($customerEmailSent) {
+                    showMessage('Reservation request submitted successfully! A confirmation email has been sent to your email address. We will contact you shortly to confirm.');
+                } else {
+                    showMessage('Reservation request submitted successfully! We will contact you shortly to confirm. (Note: Confirmation email could not be sent)');
+                }
+                
                 // Clear form data
                 $_POST = [];
             } else {
@@ -821,3 +1097,49 @@ function getAvailableTables($db, $date, $time, $excludeReservationId = null) {
                         <li class="flex items-center space-x-3">
                             <svg class="w-5 h-5 text-brand-yellow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            </svg>
+                            <span>(555) 123-4567</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 Cafe For You. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            
+            form.addEventListener('submit', function() {
+                // Show loading state
+                submitButton.disabled = true;
+                submitButton.innerHTML = `
+                    <span class="flex items-center justify-center space-x-2">
+                        <svg class="animate-spin w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span>Processing Reservation...</span>
+                    </span>
+                `;
+            });
+            
+            // Reset button if form submission fails
+            window.addEventListener('pageshow', function() {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            });
+        });
+
+        function checkTableAvailability() {
+            // This function can be enhanced with AJAX to check real-time availability
+            console.log('Checking table availability...');
+        }
+    </script>
+</body>
+</html>
