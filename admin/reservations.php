@@ -1,25 +1,291 @@
 <?php
 // admin/reservations.php
-require_once '../config/database.php';
-require_once '../includes/auth.php';
-require_once '../includes/functions.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/mailer.php';
+
+// ===== PHPMailer setup (Manual include) =====
+// If you use Composer instead, comment these 3 lines and UNcomment vendor/autoload.php below.
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+require_once __DIR__ . '/../includes/PHPMailer/src/Exception.php';
+require_once __DIR__ . '/../includes/PHPMailer/src/PHPMailer.php';
+require_once __DIR__ . '/../includes/PHPMailer/src/SMTP.php';
+
+// ---- Composer alternative (use ONE approach only) ----
+// require_once __DIR__ . '/../vendor/autoload.php';
 
 requireAdmin();
 
 $database = new Database();
 $db = $database->getConnection();
 
-// Handle status updates
+/**
+ * Development mode email function (writes to logs/email_notifications.txt)
+ */
+function sendReservationStatusEmailDev($customer_email, $customer_name, $reservation_id, $new_status, $reservation_details)
+{
+    $status_messages = [
+        'pending'   => 'Your table reservation has been received and is pending confirmation.',
+        'confirmed' => 'Great news! Your table reservation has been confirmed.',
+        'cancelled' => 'Unfortunately, your table reservation has been cancelled.',
+        'completed' => 'Thank you for dining with us! Your reservation has been completed.'
+    ];
+    $message = $status_messages[$new_status] ?? 'Your reservation status has been updated.';
+
+    $email_content = "
+=============================================================
+RESERVATION EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: $customer_email
+Subject: Reservation #$reservation_id Status Update - Cafe For You
+Date: " . date('Y-m-d H:i:s') . "
+
+Hello $customer_name,
+
+Your table reservation #$reservation_id status has been updated to: " . ucfirst($new_status) . "
+
+$message
+
+Reservation Details:
+- Reservation Date: " . date('F j, Y', strtotime($reservation_details['date'])) . "
+- Time: " . date('g:i A', strtotime($reservation_details['time'])) . "
+- Party Size: " . $reservation_details['guests'] . " guests
+- Phone: " . $reservation_details['phone'] . "
+- Booked On: " . date('F j, Y g:i A', strtotime($reservation_details['created_at'])) . "
+
+" . (!empty($reservation_details['message']) ? "Special Notes: " . $reservation_details['message'] . "\n\n" : "") . "We look forward to serving you at Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
+";
+    $log_dir = __DIR__ . '/../logs';
+    if (!is_dir($log_dir)) {
+        mkdir($log_dir, 0755, true);
+    }
+    $log_file = $log_dir . '/email_notifications.txt';
+    file_put_contents($log_file, $email_content, FILE_APPEND | LOCK_EX);
+    return true;
+}
+
+/**
+ * Production email function using PHPMailer
+ */
+function sendReservationStatusEmail($customer_email, $customer_name, $reservation_id, $new_status, $reservation_details)
+{
+    $mail = new PHPMailer(true);
+
+    try {
+        // Server settings (Gmail SMTP)
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'tkandepola@gmail.com';   // your Gmail address
+        $mail->Password   = 'xpuo unfe kvvt dwat';    // <-- replace with your Gmail App Password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+        $mail->CharSet    = 'UTF-8';
+
+        // Recipients (From should usually match the authenticated account for Gmail)
+        $mail->setFrom('tkandepola@gmail.com', 'Cafe For You'); // match Username
+        $mail->addAddress($customer_email, $customer_name);
+        $mail->addReplyTo('support@cafeforyou.com', 'Cafe For You Support');
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = "Reservation #$reservation_id Status Update - Cafe For You";
+
+        // Status messages and colors
+        $status_messages = [
+            'pending'   => 'Your table reservation has been received and is pending confirmation.',
+            'confirmed' => 'Great news! Your table reservation has been confirmed.',
+            'cancelled' => 'Unfortunately, your table reservation has been cancelled.',
+            'completed' => 'Thank you for dining with us! Your reservation has been completed.'
+        ];
+        $status_colors = [
+            'pending'   => '#F59E0B',
+            'confirmed' => '#3B82F6',
+            'cancelled' => '#EF4444',
+            'completed' => '#10B981'
+        ];
+
+        $message = $status_messages[$new_status] ?? 'Your reservation status has been updated.';
+        $color   = $status_colors[$new_status] ?? '#6B7280';
+
+        $html_body = "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+            <title>Reservation Status Update</title>
+            <style>
+                body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background: #FFFDF7; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background: linear-gradient(135deg, #FFC728, #FFB800); color: white; padding: 30px; text-align: center; border-radius: 15px 15px 0 0; }
+                .content { background: white; padding: 30px; border-radius: 0 0 15px 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+                .status-badge { display: inline-block; background: {$color}; color: white; padding: 10px 20px; border-radius: 25px; font-weight: bold; margin: 20px 0; }
+                .reservation-details { background: #FFF9E6; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #FFC728; }
+                .footer { text-align: center; padding: 20px; color: #666; }
+                .detail-row { display: flex; justify-content: space-between; margin: 10px 0; }
+                .detail-label { font-weight: bold; color: #8B4513; }
+                .detail-value { color: #333; }
+            </style>
+        </head>
+        <body>
+            <div class='container'>
+                <div class='header'>
+                    <h1 style='margin:0;font-size:28px;'>🍽️ Cafe For You</h1>
+                    <p style='margin:10px 0 0 0;font-size:16px;opacity:.9;'>Table Reservation Update</p>
+                </div>
+                <div class='content'>
+                    <h2 style='color:#8B4513;margin-top:0;'>Hello " . htmlspecialchars($customer_name) . ",</h2>
+                    <p style='font-size:16px;line-height:1.6;color:#333;'>We wanted to update you on the status of your table reservation.</p>
+                    <div class='reservation-details'>
+                        <h3 style='color:#8B4513;margin-top:0;'>Reservation #$reservation_id</h3>
+                        <p><strong>Current Status:</strong> <span class='status-badge'>" . ucfirst($new_status) . "</span></p>
+                        <p><strong>Status Message:</strong> {$message}</p>
+
+                        <div class='detail-row'>
+                            <span class='detail-label'>Reservation Date:</span>
+                            <span class='detail-value'>" . date('F j, Y', strtotime($reservation_details['date'])) . "</span>
+                        </div>
+                        <div class='detail-row'>
+                            <span class='detail-label'>Time:</span>
+                            <span class='detail-value'>" . date('g:i A', strtotime($reservation_details['time'])) . "</span>
+                        </div>
+                        <div class='detail-row'>
+                            <span class='detail-label'>Party Size:</span>
+                            <span class='detail-value'>" . $reservation_details['guests'] . " guests</span>
+                        </div>
+                        <div class='detail-row'>
+                            <span class='detail-label'>Contact Phone:</span>
+                            <span class='detail-value'>" . htmlspecialchars($reservation_details['phone']) . "</span>
+                        </div>";
+        if (!empty($reservation_details['message'])) {
+            $html_body .= "
+                        <div style='margin-top:15px;padding-top:15px;border-top:1px solid #ddd;'>
+                            <span class='detail-label'>Special Notes:</span><br>
+                            <span class='detail-value'>" . htmlspecialchars($reservation_details['message']) . "</span>
+                        </div>";
+        }
+        $html_body .= "
+                    </div>
+                    <p style='font-size:16px;line-height:1.6;color:#333;'>If you have any questions about your reservation, please don't hesitate to contact us at <strong>support@cafeforyou.com</strong> or call us directly.</p>
+                    <p style='font-size:14px;color:#666;margin-bottom:0;'>Best regards,<br><strong>The Cafe For You Team</strong></p>
+                </div>
+                <div class='footer'>
+                    <p style='margin:0;font-size:14px;'>This is an automated message. Please do not reply to this email.</p>
+                    <p style='margin:5px 0 0 0;font-size:12px;'>📍 Cafe For You | ☎️ Contact: support@cafeforyou.com</p>
+                </div>
+            </div>
+        </body>
+        </html>";
+
+        $mail->Body = $html_body;
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        // Log the PHPMailer error for debugging
+        error_log('Reservation email sending failed: ' . $mail->ErrorInfo);
+        return false;
+    }
+}
+
+// ===== Handle status updates =====
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status'])) {
     $reservation_id = (int)$_POST['reservation_id'];
     $new_status = sanitize($_POST['status']);
-    
-    $update_query = "UPDATE reservations SET status = ? WHERE id = ?";
-    $update_stmt = $db->prepare($update_query);
-    if ($update_stmt->execute([$new_status, $reservation_id])) {
-        showMessage('Reservation status updated successfully!');
+    $old_status = sanitize($_POST['old_status']);
+
+    // Only proceed if status actually changed
+    if ($new_status !== $old_status) {
+        $update_query = "UPDATE reservations SET status = ? WHERE id = ?";
+        $update_stmt = $db->prepare($update_query);
+        if ($update_stmt->execute([$new_status, $reservation_id])) {
+            // Get reservation and customer details for email (support guest + user)
+            $email_stmt = $db->prepare("
+                SELECT
+                    r.*,
+                    COALESCE(u.full_name, r.name) AS name_resolved,
+                    COALESCE(u.email,     r.email) AS email_resolved,
+                    COALESCE(u.phone,     r.phone) AS phone_resolved
+                FROM reservations r
+                LEFT JOIN users u ON r.user_id = u.id
+                WHERE r.id = ?
+            ");
+            $email_stmt->execute([$reservation_id]);
+            $res_row_post = $email_stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($res_row_post) {
+                // Resolve customer identity
+                $customer_email = trim((string)$res_row_post['email_resolved']);
+                $customer_name  = trim((string)($res_row_post['name_resolved'] ?: 'Valued Customer'));
+
+                if ($customer_email === '') {
+                    error_log("ERROR: Reservation #$reservation_id has no email (guest or user) to notify.");
+                    showMessage('⚠️ Reservation status updated, but could not send email - customer email not found.', 'warning');
+                } else {
+                    // Email Configuration
+                    // Email Configuration
+                    $is_development = false;  // Emails will now be sent using Gmail SMTP
+                    // CHANGE THIS to false when ready for production
+
+                    // Build a details array for the template with consistent keys
+                    $details_for_email = [
+                        'date'       => $res_row_post['date'],
+                        'time'       => $res_row_post['time'],
+                        'guests'     => $res_row_post['guests'],
+                        'phone'      => $res_row_post['phone_resolved'],
+                        'created_at' => $res_row_post['created_at'],
+                        'message'    => $res_row_post['message'] ?? ''
+                    ];
+
+                    if ($is_development) {
+                        error_log("DEBUG: Development mode - logging email for reservation #$reservation_id to {$customer_email}");
+                        $email_sent = sendReservationStatusEmailDev(
+                            $customer_email,
+                            $customer_name,
+                            $reservation_id,
+                            $new_status,
+                            $details_for_email
+                        );
+                        if ($email_sent) {
+                            showMessage("✅ Reservation status updated successfully! Email notification logged to logs/email_notifications.txt (Development Mode).", 'success');
+                        } else {
+                            showMessage("⚠️ Reservation status updated, but failed to log email notification.", 'warning');
+                        }
+                    } else {
+                        error_log("DEBUG: Production mode - sending actual email for reservation #$reservation_id to: " . $customer_email);
+                        $email_sent = sendReservationStatusEmail(
+                            $customer_email,
+                            $customer_name,
+                            $reservation_id,
+                            $new_status,
+                            $details_for_email
+                        );
+                        if ($email_sent) {
+                            showMessage("✅ Reservation status updated successfully! Email notification sent to customer at " . htmlspecialchars($customer_email) . ".", 'success');
+                        } else {
+                            showMessage("⚠️ Reservation status updated, but failed to send email notification. Please check error logs for details.", 'warning');
+                        }
+                    }
+                }
+            } else {
+                error_log("ERROR: Could not retrieve reservation details for email notification - reservation #$reservation_id");
+                showMessage('⚠️ Reservation status updated, but could not send email - customer details not found.', 'warning');
+            }
+        } else {
+            showMessage('Failed to update reservation status', 'error');
+        }
     } else {
-        showMessage('Failed to update reservation status', 'error');
+        showMessage('No changes made to reservation status.', 'info');
     }
 }
 
@@ -46,14 +312,14 @@ foreach ($reservations as $reservation) {
 }
 
 // Today's reservations
-$today_reservations = array_filter($reservations, function($reservation) {
+$today_reservations = array_filter($reservations, function ($reservation) {
     return date('Y-m-d', strtotime($reservation['date'])) === date('Y-m-d');
 });
 $stats['today_reservations'] = count($today_reservations);
 $stats['today_guests'] = array_sum(array_column($today_reservations, 'guests'));
 
 // Upcoming reservations (next 7 days)
-$upcoming_reservations = array_filter($reservations, function($reservation) {
+$upcoming_reservations = array_filter($reservations, function ($reservation) {
     $reservation_date = strtotime($reservation['date']);
     $today = strtotime('today');
     $next_week = strtotime('+7 days', $today);
@@ -61,11 +327,11 @@ $upcoming_reservations = array_filter($reservations, function($reservation) {
 });
 $stats['upcoming_reservations'] = count($upcoming_reservations);
 
-// Get reservation details if requested
+// Get reservation details if requested (modal)
 $reservation_details = null;
 if (isset($_GET['view'])) {
     $reservation_id = (int)$_GET['view'];
-    
+
     $details_query = "SELECT r.*, u.full_name as user_name, u.email as user_email 
                      FROM reservations r 
                      LEFT JOIN users u ON r.user_id = u.id 
@@ -75,9 +341,9 @@ if (isset($_GET['view'])) {
     $reservation_details = $details_stmt->fetch(PDO::FETCH_ASSOC);
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -116,32 +382,62 @@ if (isset($_GET['view'])) {
                     },
                     keyframes: {
                         float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-10px)' }
+                            '0%, 100%': {
+                                transform: 'translateY(0px)'
+                            },
+                            '50%': {
+                                transform: 'translateY(-10px)'
+                            }
                         },
                         'pulse-soft': {
-                            '0%, 100%': { opacity: 1 },
-                            '50%': { opacity: 0.8 }
+                            '0%, 100%': {
+                                opacity: 1
+                            },
+                            '50%': {
+                                opacity: 0.8
+                            }
                         },
                         'slide-up': {
-                            '0%': { transform: 'translateY(30px)', opacity: 0 },
-                            '100%': { transform: 'translateY(0)', opacity: 1 }
+                            '0%': {
+                                transform: 'translateY(30px)',
+                                opacity: 0
+                            },
+                            '100%': {
+                                transform: 'translateY(0)',
+                                opacity: 1
+                            }
                         },
                         'fade-in': {
-                            '0%': { opacity: 0 },
-                            '100%': { opacity: 1 }
+                            '0%': {
+                                opacity: 0
+                            },
+                            '100%': {
+                                opacity: 1
+                            }
                         },
                         'bounce-gentle': {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-5px)' }
+                            '0%, 100%': {
+                                transform: 'translateY(0)'
+                            },
+                            '50%': {
+                                transform: 'translateY(-5px)'
+                            }
                         },
                         glow: {
-                            '0%': { boxShadow: '0 0 20px rgba(255, 199, 40, 0.3)' },
-                            '100%': { boxShadow: '0 0 30px rgba(255, 199, 40, 0.6)' }
+                            '0%': {
+                                boxShadow: '0 0 20px rgba(255, 199, 40, 0.3)'
+                            },
+                            '100%': {
+                                boxShadow: '0 0 30px rgba(255, 199, 40, 0.6)'
+                            }
                         },
                         shimmer: {
-                            '0%': { backgroundPosition: '-1000px 0' },
-                            '100%': { backgroundPosition: '1000px 0' }
+                            '0%': {
+                                backgroundPosition: '-1000px 0'
+                            },
+                            '100%': {
+                                backgroundPosition: '1000px 0'
+                            }
                         }
                     },
                     backdropBlur: {
@@ -153,8 +449,8 @@ if (isset($_GET['view'])) {
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
-        
-        body { 
+
+        body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #FFFDF7 0%, #FFF9E6 25%, #FFF0B8 50%, #FFE388 75%, #FFD558 100%);
             background-attachment: fixed;
@@ -197,10 +493,7 @@ if (isset($_GET['view'])) {
             left: -50%;
             width: 200%;
             height: 200%;
-            background: linear-gradient(45deg, 
-                transparent 30%, 
-                rgba(255, 255, 255, 0.1) 50%, 
-                transparent 70%);
+            background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
             transform: rotate(45deg);
             transition: all 0.6s ease;
             opacity: 0;
@@ -237,7 +530,7 @@ if (isset($_GET['view'])) {
         .nav-item:hover::before {
             left: 100%;
         }
-        
+
         .nav-item.active {
             background: linear-gradient(135deg, #FFC728, #FFB800, #F5B800);
             color: #8B4513;
@@ -309,12 +602,7 @@ if (isset($_GET['view'])) {
         }
 
         .shimmer-bg {
-            background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.4),
-                transparent
-            );
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
             background-size: 200% 100%;
             animation: shimmer 2.5s infinite;
         }
@@ -396,7 +684,9 @@ if (isset($_GET['view'])) {
                 transform: scale(0.33);
                 opacity: 1;
             }
-            80%, 100% {
+
+            80%,
+            100% {
                 transform: scale(2.33);
                 opacity: 0;
             }
@@ -415,16 +705,42 @@ if (isset($_GET['view'])) {
             box-shadow: 0 30px 80px rgba(255, 184, 0, 0.3);
         }
 
+        .save-button {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .save-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        }
+
+        .save-button:disabled {
+            background: #9CA3AF;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         @media (max-width: 768px) {
             .glass-card:hover {
                 transform: none;
             }
+
             .reservation-card:hover {
                 transform: translateY(-4px);
             }
         }
     </style>
 </head>
+
 <body class="font-sans">
     <!-- Floating Background Elements -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
@@ -685,94 +1001,105 @@ if (isset($_GET['view'])) {
 
                     <div class="p-10">
                         <?php if (empty($reservations)): ?>
-                        <div class="text-center py-24">
-                            <div class="w-40 h-40 mx-auto mb-10 bg-golden-200/20 rounded-full flex items-center justify-center">
-                                <svg class="w-20 h-20 text-golden-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
-                                </svg>
+                            <div class="text-center py-24">
+                                <div class="w-40 h-40 mx-auto mb-10 bg-golden-200/20 rounded-full flex items-center justify-center">
+                                    <svg class="w-20 h-20 text-golden-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4h3a1 1 0 011 1v9a1 1 0 01-1 1H5a1 1 0 01-1-1V8a1 1 0 011-1h3z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-2xl font-black text-cafe-brown mb-4">No Reservations Yet</h3>
+                                <p class="text-warm-gray mb-8 text-xl font-medium">Customer reservations will appear here once they start booking tables.</p>
                             </div>
-                            <h3 class="text-2xl font-black text-cafe-brown mb-4">No Reservations Yet</h3>
-                            <p class="text-warm-gray mb-8 text-xl font-medium">Customer reservations will appear here once they start booking tables.</p>
-                        </div>
                         <?php else: ?>
-                        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                            <?php foreach ($reservations as $reservation): ?>
-                                <div class="reservation-card rounded-3xl shadow-2xl overflow-hidden hover-lift">
-                                    <div class="bg-gradient-to-br from-golden-50 to-golden-100 p-6 border-b-2 border-golden-200">
-                                        <div class="flex items-center justify-between mb-4">
-                                            <!-- Reservation ID -->
-                                            <div class="w-16 h-16 bg-gradient-to-br from-golden-500 to-golden-600 rounded-2xl flex items-center justify-center shadow-xl">
-                                                <span class="text-white font-black text-lg">#<?= $reservation['id'] ?></span>
-                                            </div>
+                            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                <?php foreach ($reservations as $reservation): ?>
+                                    <div class="reservation-card rounded-3xl shadow-2xl overflow-hidden hover-lift">
+                                        <div class="bg-gradient-to-br from-golden-50 to-golden-100 p-6 border-b-2 border-golden-200">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <!-- Reservation ID -->
+                                                <div class="w-16 h-16 bg-gradient-to-br from-golden-500 to-golden-600 rounded-2xl flex items-center justify-center shadow-xl">
+                                                    <span class="text-white font-black text-lg">#<?= $reservation['id'] ?></span>
+                                                </div>
 
-                                            <!-- Status Badge -->
-                                            <div class="status-<?= $reservation['status'] ?> px-4 py-2 rounded-2xl text-sm font-black shadow-lg">
-                                                <?= ucfirst($reservation['status']) ?>
-                                            </div>
-                                        </div>
-
-                                        <!-- Customer Info -->
-                                        <div class="flex items-center space-x-4">
-                                            <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                                                <span class="text-white font-bold text-lg">
-                                                    <?= strtoupper(substr($reservation['name'], 0, 2)) ?>
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <h4 class="text-lg font-black text-cafe-brown"><?= htmlspecialchars($reservation['name']) ?></h4>
-                                                <p class="text-base text-golden-600 font-medium"><?= htmlspecialchars($reservation['email']) ?></p>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="p-6">
-                                        <!-- Reservation Details -->
-                                        <div class="space-y-4 mb-6">
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-warm-gray font-medium">Date & Time</span>
-                                                <div class="text-right">
-                                                    <div class="text-sm font-bold text-cafe-brown"><?= date('M j, Y', strtotime($reservation['date'])) ?></div>
-                                                    <div class="text-xs text-warm-gray"><?= date('g:i A', strtotime($reservation['time'])) ?></div>
+                                                <!-- Status Badge -->
+                                                <div class="status-<?= $reservation['status'] ?> px-4 py-2 rounded-2xl text-sm font-black shadow-lg">
+                                                    <?= ucfirst($reservation['status']) ?>
                                                 </div>
                                             </div>
 
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-warm-gray font-medium">Party Size</span>
-                                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">
-                                                    <?= $reservation['guests'] ?> guests
-                                                </span>
-                                            </div>
-
-                                            <div class="flex justify-between items-center">
-                                                <span class="text-warm-gray font-medium">Phone</span>
-                                                <span class="text-sm font-medium text-cafe-brown"><?= htmlspecialchars($reservation['phone']) ?></span>
+                                            <!-- Customer Info -->
+                                            <div class="flex items-center space-x-4">
+                                                <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
+                                                    <span class="text-white font-bold text-lg">
+                                                        <?= strtoupper(substr($reservation['name'], 0, 2)) ?>
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <h4 class="text-lg font-black text-cafe-brown"><?= htmlspecialchars($reservation['name']) ?></h4>
+                                                    <p class="text-base text-golden-600 font-medium"><?= htmlspecialchars($reservation['email']) ?></p>
+                                                </div>
                                             </div>
                                         </div>
 
-                                        <!-- Status Update & Actions -->
-                                        <div class="space-y-4 pt-6 border-t-2 border-golden-200/50">
-                                            <form method="POST" class="space-y-3">
-                                                <input type="hidden" name="reservation_id" value="<?= $reservation['id'] ?>">
-                                                <label class="block text-sm font-bold text-cafe-brown">Update Status</label>
-                                                <select name="status" onchange="confirmStatusChange(this)" 
-                                                        class="w-full px-4 py-3 border-2 border-golden-200/50 rounded-xl focus:outline-none focus:ring-4 focus:ring-golden-400/20 focus:border-golden-400 bg-white/80 backdrop-blur-sm transition-all duration-300 font-bold">
-                                                    <option value="pending" <?= $reservation['status'] === 'pending' ? 'selected' : '' ?>>⏳ Pending</option>
-                                                    <option value="confirmed" <?= $reservation['status'] === 'confirmed' ? 'selected' : '' ?>>✅ Confirmed</option>
-                                                    <option value="cancelled" <?= $reservation['status'] === 'cancelled' ? 'selected' : '' ?>>❌ Cancelled</option>
-                                                    <option value="completed" <?= $reservation['status'] === 'completed' ? 'selected' : '' ?>>✨ Completed</option>
-                                                </select>
-                                                <input type="hidden" name="update_status" value="1">
-                                            </form>
+                                        <div class="p-6">
+                                            <!-- Reservation Details -->
+                                            <div class="space-y-4 mb-6">
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-warm-gray font-medium">Date & Time</span>
+                                                    <div class="text-right">
+                                                        <div class="text-sm font-bold text-cafe-brown"><?= date('M j, Y', strtotime($reservation['date'])) ?></div>
+                                                        <div class="text-xs text-warm-gray"><?= date('g:i A', strtotime($reservation['time'])) ?></div>
+                                                    </div>
+                                                </div>
 
-                                            <a href="reservations.php?view=<?= $reservation['id'] ?>" 
-                                               class="w-full bg-gradient-to-r from-golden-500 to-golden-600 text-white px-6 py-4 rounded-2xl font-black text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 shimmer-bg text-center block">
-                                                View Full Details
-                                            </a>
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-warm-gray font-medium">Party Size</span>
+                                                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-bold">
+                                                        <?= $reservation['guests'] ?> guests
+                                                    </span>
+                                                </div>
+
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-warm-gray font-medium">Phone</span>
+                                                    <span class="text-sm font-medium text-cafe-brown"><?= htmlspecialchars($reservation['phone']) ?></span>
+                                                </div>
+                                            </div>
+
+                                            <!-- Status Update & Actions -->
+                                            <div class="space-y-4 pt-6 border-t-2 border-golden-200/50">
+                                                <form method="POST" class="space-y-3" id="statusForm<?= $reservation['id'] ?>">
+                                                    <input type="hidden" name="reservation_id" value="<?= $reservation['id'] ?>">
+                                                    <input type="hidden" name="old_status" value="<?= $reservation['status'] ?>">
+                                                    <input type="hidden" name="update_status" value="1">
+                                                    <label class="block text-sm font-bold text-cafe-brown">Update Status</label>
+                                                    <select name="status" onchange="toggleSaveButton(<?= $reservation['id'] ?>, '<?= $reservation['status'] ?>')"
+                                                        class="w-full px-4 py-3 border-2 border-golden-200/50 rounded-xl focus:outline-none focus:ring-4 focus:ring-golden-400/20 focus:border-golden-400 bg-white/80 backdrop-blur-sm transition-all duration-300 font-bold">
+                                                        <option value="pending" <?= $reservation['status'] === 'pending' ? 'selected' : '' ?>>⏳ Pending</option>
+                                                        <option value="confirmed" <?= $reservation['status'] === 'confirmed' ? 'selected' : '' ?>>✅ Confirmed</option>
+                                                        <option value="cancelled" <?= $reservation['status'] === 'cancelled' ? 'selected' : '' ?>>❌ Cancelled</option>
+                                                        <option value="completed" <?= $reservation['status'] === 'completed' ? 'selected' : '' ?>>✨ Completed</option>
+                                                    </select>
+                                                    <button type="button"
+                                                        onclick="saveReservationStatus(<?= $reservation['id'] ?>)"
+                                                        id="saveButton<?= $reservation['id'] ?>"
+                                                        class="w-full save-button flex items-center justify-center space-x-2"
+                                                        disabled>
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                        </svg>
+                                                        <span>Save Status & Send Email</span>
+                                                    </button>
+                                                </form>
+
+                                                <a href="reservations.php?view=<?= $reservation['id'] ?>"
+                                                    class="w-full bg-gradient-to-r from-golden-500 to-golden-600 text-white px-6 py-4 rounded-2xl font-black text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 shimmer-bg text-center block">
+                                                    View Full Details
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
+                                <?php endforeach; ?>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -857,31 +1184,31 @@ if (isset($_GET['view'])) {
                                     </div>
                                 </div>
                             </div>
-                            
-                            <?php if ($reservation_details['message']): ?>
-                            <div class="mt-6 pt-6 border-t-2 border-golden-200/50">
-                                <div class="flex justify-between items-start">
-                                    <span class="text-lg font-bold text-warm-gray">Special Notes:</span>
-                                    <span class="text-lg font-medium text-cafe-brown text-right max-w-md"><?= htmlspecialchars($reservation_details['message']) ?></span>
+
+                            <?php if (!empty($reservation_details['message'])): ?>
+                                <div class="mt-6 pt-6 border-t-2 border-golden-200/50">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-lg font-bold text-warm-gray">Special Notes:</span>
+                                        <span class="text-lg font-medium text-cafe-brown text-right max-w-md"><?= htmlspecialchars($reservation_details['message']) ?></span>
+                                    </div>
                                 </div>
-                            </div>
                             <?php endif; ?>
                         </div>
                     </div>
 
                     <!-- Action Buttons -->
                     <div class="flex flex-wrap gap-6 pt-8 border-t-2 border-golden-200/50">
-                        <a href="reservations.php" 
-                           class="flex-1 bg-warm-gray/20 text-warm-gray px-8 py-4 rounded-2xl font-black text-lg hover:bg-warm-gray/30 transition-all duration-300 transform hover:scale-105 text-center flex items-center justify-center space-x-3">
+                        <a href="reservations.php"
+                            class="flex-1 bg-warm-gray/20 text-warm-gray px-8 py-4 rounded-2xl font-black text-lg hover:bg-warm-gray/30 transition-all duration-300 transform hover:scale-105 text-center flex items-center justify-center space-x-3">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                             </svg>
                             <span>Back to Reservations</span>
                         </a>
-                        <button onclick="window.print()" 
-                                class="flex-1 bg-gradient-to-r from-golden-500 to-golden-600 text-white px-8 py-4 rounded-2xl font-black text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 shimmer-bg flex items-center justify-center space-x-3">
+                        <button onclick="window.print()"
+                            class="flex-1 bg-gradient-to-r from-golden-500 to-golden-600 text-white px-8 py-4 rounded-2xl font-black text-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 shimmer-bg flex items-center justify-center space-x-3">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2-2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                             </svg>
                             <span>Print Reservation</span>
                         </button>
@@ -895,26 +1222,70 @@ if (isset($_GET['view'])) {
     <div id="loadingOverlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-3xl p-8 flex items-center space-x-4">
             <div class="w-8 h-8 border-4 border-golden-400 border-t-transparent rounded-full animate-spin"></div>
-            <span class="text-cafe-brown font-semibold">Loading...</span>
+            <span class="text-cafe-brown font-semibold">Updating reservation status and sending email...</span>
         </div>
     </div>
 
     <script>
-        function confirmStatusChange(selectElement) {
-            const form = selectElement.form;
-            const newStatus = selectElement.value;
-            const reservationNumber = form.querySelector('input[name="reservation_id"]').value;
+        function toggleSaveButton(reservationId, originalStatus) {
+            const form = document.getElementById(`statusForm${reservationId}`);
+            const saveButton = document.getElementById(`saveButton${reservationId}`);
+            const statusSelect = form.querySelector('select[name="status"]');
+            const hasChanged = statusSelect.value !== originalStatus;
 
-            if (confirm(`Are you sure you want to change reservation #${reservationNumber} status to "${newStatus}"?`)) {
-                form.submit();
+            saveButton.disabled = !hasChanged;
+
+            if (hasChanged) {
+                saveButton.style.background = 'linear-gradient(135deg, #10B981, #059669)';
+                saveButton.style.color = 'white';
             } else {
-                // Reset to previous value if cancelled
-                selectElement.selectedIndex = 0;
+                saveButton.style.background = '#9CA3AF';
+                saveButton.style.color = '#6B7280';
+            }
+        }
+
+        function saveReservationStatus(reservationId) {
+            const form = document.getElementById(`statusForm${reservationId}`);
+            const saveButton = document.getElementById(`saveButton${reservationId}`);
+            const statusSelect = form.querySelector('select[name="status"]');
+            const oldStatusInput = form.querySelector('input[name="old_status"]');
+
+            const newStatus = statusSelect.value;
+            const oldStatus = oldStatusInput.value;
+
+            if (newStatus === oldStatus) {
+                alert('No changes to save.');
+                return;
+            }
+
+            const statusLabels = {
+                'pending': 'Pending',
+                'confirmed': 'Confirmed',
+                'cancelled': 'Cancelled',
+                'completed': 'Completed'
+            };
+
+            if (confirm(`Are you sure you want to change reservation #${reservationId} status from "${statusLabels[oldStatus]}" to "${statusLabels[newStatus]}"?\n\nAn email notification will be sent to the customer.`)) {
+                saveButton.disabled = true;
+                saveButton.innerHTML = `
+                    <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Saving & Sending Email...</span>
+                `;
+
+                // Show loading overlay
+                document.getElementById('loadingOverlay').classList.remove('hidden');
+
+                form.submit();
             }
         }
 
         // Enhanced modal handling
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all save buttons as disabled
+            document.querySelectorAll('[id^="saveButton"]').forEach(button => {
+                button.disabled = true;
+            });
+
             // Close modal on escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && document.getElementById('reservation-modal')) {
@@ -956,7 +1327,7 @@ if (isset($_GET['view'])) {
                             }
                         }, 500);
                     }
-                }, 5000);
+                }, 8000);
             });
         });
 
@@ -966,11 +1337,11 @@ if (isset($_GET['view'])) {
             button.addEventListener('mousedown', function() {
                 this.style.transform = 'scale(0.95)';
             });
-            
+
             button.addEventListener('mouseup', function() {
                 this.style.transform = '';
             });
-            
+
             button.addEventListener('mouseleave', function() {
                 this.style.transform = '';
             });
@@ -978,30 +1349,18 @@ if (isset($_GET['view'])) {
 
         // Add CSS animations
         const style = document.createElement('style');
-        style.textContent = 
+        style.textContent = `
             @keyframes slideInFromTop {
-                0% {
-                    transform: translateY(-100px);
-                    opacity: 0;
-                }
-                100% {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
+                0% { transform: translateY(-100px); opacity: 0; }
+                100% { transform: translateY(0); opacity: 1; }
             }
-            
             @keyframes fadeOut {
-                0% {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                100% {
-                    opacity: 0;
-                    transform: translateY(-20px);
-                }
+                0% { opacity: 1; transform: translateY(0); }
+                100% { opacity: 0; transform: translateY(-20px); }
             }
-        ;
+        `;
         document.head.appendChild(style);
     </script>
 </body>
+
 </html>

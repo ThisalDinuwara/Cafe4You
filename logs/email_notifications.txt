@@ -390,3 +390,32 @@ Best regards,
 The Cafe For You Team
 =============================================================
 
+
+=============================================================
+RESERVATION EMAIL NOTIFICATION (Development Mode)
+=============================================================
+To: tkandepola@gmail.com
+Subject: Reservation #6 Status Update - Cafe For You
+Date: 2025-09-13 13:08:40
+
+Hello Thisal Kandepola,
+
+Your table reservation #6 status has been updated to: Cancelled
+
+Unfortunately, your table reservation has been cancelled.
+
+Reservation Details:
+- Reservation Date: September 14, 2025
+- Time: 8:00 PM
+- Party Size: 1 guests
+- Phone: 0705815334
+- Booked On: September 13, 2025 12:35 PM
+
+Special Notes: wgrwhrwgq
+
+We look forward to serving you at Cafe For You!
+
+Best regards,
+The Cafe For You Team
+=============================================================
+
