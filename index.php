@@ -159,6 +159,8 @@ function evaluate_promo(?array $row): array {
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
 
         .add-to-cart-btn:hover {
@@ -218,6 +220,25 @@ function evaluate_promo(?array $row): array {
                 margin-top: 8px;
             }
         }
+
+        /* Ripple effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple-animation {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Toast transition */
+        #toast { transition: opacity .2s ease, transform .2s ease; }
     </style>
 </head>
 <body class="bg-brand-cream font-body">
@@ -239,7 +260,17 @@ function evaluate_promo(?array $row): array {
                     <a href="contact.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Contact</a>
 
                     <?php if (isLoggedIn()): ?>
-                        <a href="cart.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Cart</a>
+                        <a href="cart.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">
+                            Cart
+                            <!-- Cart badge -->
+                            <span id="cart-count-badge" class="ml-2 inline-flex items-center justify-center text-xs font-semibold bg-brand-yellow text-gray-900 rounded-full px-2 py-0.5 align-middle" style="min-width: 22px;">
+                                <?php
+                                  $stmtCnt = $db->prepare("SELECT COALESCE(SUM(quantity),0) FROM cart WHERE user_id = ?");
+                                  $stmtCnt->execute([$_SESSION['user_id']]);
+                                  echo (int)$stmtCnt->fetchColumn();
+                                ?>
+                            </span>
+                        </a>
                         <a href="orders.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Orders</a>
                         <?php if (isAdmin()): ?>
                             <a href="admin/dashboard.php" class="text-gray-700 hover:text-brand-yellow transition-all duration-300 font-medium relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-brand-yellow after:transition-all after:duration-300 hover:after:w-full">Admin</a>
@@ -531,6 +562,7 @@ function evaluate_promo(?array $row): array {
                                     <div class="button-wrapper">
                                         <form method="POST" action="add_to_cart.php" class="inline">
                                             <input type="hidden" name="menu_item_id" value="<?= (int)$item['id'] ?>">
+                                            <input type="hidden" name="quantity" value="1">
                                             <button type="submit" class="add-to-cart-btn">
                                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m0 0h8.5"></path>
@@ -651,6 +683,7 @@ function evaluate_promo(?array $row): array {
         </div>
     </footer>
 
+    <!-- Scripts -->
     <script>
         // Slideshow logic
         document.addEventListener('DOMContentLoaded', function() {
@@ -743,13 +776,12 @@ function evaluate_promo(?array $row): array {
             });
         });
 
-        // Add to cart animation
+        // Add to cart ripple animation (visual only)
         document.addEventListener('DOMContentLoaded', function() {
             const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
             
             addToCartButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
-                    // Create a ripple effect
                     const ripple = document.createElement('span');
                     const rect = this.getBoundingClientRect();
                     const size = Math.max(rect.width, rect.height);
@@ -771,21 +803,89 @@ function evaluate_promo(?array $row): array {
         });
     </script>
 
-    <style>
-        .ripple {
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.6);
-            animation: ripple-animation 0.6s linear;
-            pointer-events: none;
+    <!-- Toast container (hidden by default) -->
+    <div id="toast" class="fixed top-6 right-6 z-[9999] hidden">
+        <div id="toast-inner" class="rounded-xl shadow-2xl border px-4 py-3 bg-white text-gray-800 flex items-start gap-3">
+            <div id="toast-icon">✅</div>
+            <div class="text-sm leading-snug">
+                <div id="toast-title" class="font-semibold">Added to cart</div>
+                <div id="toast-msg" class="opacity-80"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AJAX interceptor: prevent navigation, show toast, update cart badge -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('form[action="add_to_cart.php"]').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const fd = new FormData(form);
+          try {
+            const res = await fetch('add_to_cart.php', {
+              method: 'POST',
+              body: fd,
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+              },
+              credentials: 'same-origin'
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok || !data.ok) {
+              showToast('Could not add to cart', data.message || 'Please try again.', false);
+              return;
+            }
+
+            showToast('Added to cart', data.message || 'Item added to cart.', true);
+
+            const badge = document.getElementById('cart-count-badge');
+            if (badge && typeof data.cart_count === 'number') {
+              badge.textContent = data.cart_count;
+            }
+          } catch (err) {
+            showToast('Network error', 'Please check your connection and try again.', false);
+          }
+        });
+      });
+
+      function showToast(title, msg, success = true) {
+        const t = document.getElementById('toast');
+        const ti = document.getElementById('toast-inner');
+        const tt = document.getElementById('toast-title');
+        const tm = document.getElementById('toast-msg');
+        const icon = document.getElementById('toast-icon');
+
+        tt.textContent = title;
+        tm.textContent = msg || '';
+        icon.textContent = success ? '✅' : '⚠️';
+
+        ti.classList.remove('border-emerald-200','bg-emerald-50','border-red-200','bg-red-50');
+        if (success) {
+          ti.classList.add('border-emerald-200','bg-emerald-50');
+        } else {
+          ti.classList.add('border-red-200','bg-red-50');
         }
 
-        @keyframes ripple-animation {
-            to {
-                transform: scale(2);
-                opacity: 0;
-            }
-        }
-    </style>
+        t.classList.remove('hidden');
+        t.style.opacity = 0;
+        t.style.transform = 'translateY(-8px)';
+        requestAnimationFrame(() => {
+          t.style.opacity = 1;
+          t.style.transform = 'translateY(0)';
+        });
+
+        clearTimeout(showToast._hideTimer);
+        showToast._hideTimer = setTimeout(() => {
+          t.style.opacity = 0;
+          t.style.transform = 'translateY(-8px)';
+          setTimeout(() => t.classList.add('hidden'), 220);
+        }, 2500);
+      }
+    });
+    </script>
 </body>
 </html>
